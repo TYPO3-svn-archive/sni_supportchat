@@ -29,9 +29,10 @@ class ajaxResponse {
 		}
 		switch ($this->cmd) {
 			case "checkIfOnline":
-				$chatPid = intval(t3lib_div::_GET("chatPid"));
-				$ret = $chat->checkIfChatIsOnline($chatPid);
-				$chat->printResponse($ret);
+				$chatPids = t3lib_div::_GET("chatPids");
+				$onlineArray = $chat->checkIfChatIsOnline($chatPids);
+                $xml = $chat->convert2xml($onlineArray);
+				$chat->printResponse($xml);
 			break;
 			case "createChat":
 				$chatUid = $chat->createChat($this->lang);

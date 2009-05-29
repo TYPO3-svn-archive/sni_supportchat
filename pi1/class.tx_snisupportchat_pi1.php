@@ -48,6 +48,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();		
 		$this->templateCode = $this->cObj->fileResource($this->conf["templateFile"]);
+		$this->checkPids = $this->checkForOnlineOfflinePages(true);
 		$cmd = $this->piVars["cmd"];
 		switch ($cmd) {
 			case 'openChat':
@@ -56,8 +57,8 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 				// write something to the session so the session cookie (and id) is not re-created on every browser request (needed since new session handling see bug http://bugs.typo3.org/view.php?id=10205)
    	            $GLOBALS['TSFE']->fe_user->setKey("ses","sni_supportchat","1"); 
 				if($sessionId) {
-					$chatIsOnline = tx_chat_functions::checkIfChatIsOnline($this->conf["chatPluginPid"]);
-					if($chatIsOnline) {
+					$chatIsOnline = tx_chat_functions::checkIfChatIsOnline($this->checkPids);
+					if($chatIsOnline[$this->conf["chatPluginPid"]]) {
 //						tx_chat_functions::destroyInactiveChats($this->conf["timeToInactivateChatIfNoMessages"],$this->conf["chatsPid"]);
 				        $chat = new chat();
 				        $chat->initChat($this->conf["chatsPid"],"");
@@ -126,35 +127,44 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 	 *
 	 */
 	function addJsInHeaderForCheckIfChatIsOnline() {
-		if($this->conf["addPrototype"] && $this->conf["usePrototype"]) {
-			$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/prototype.js"></script>';
-		}
-		if($this->conf["addMootools"] && $this->conf["useMootools"]) {
-            $GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.1-core.js"></script>';
-		}
-		if($this->conf["usePrototype"]) {
-			$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline.js"></script>';
-            $onLoad = '
-                Event.observe(window, "load", initOnlineCheck);
-            ';
-		}
-		else {
-            $GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline_Mootools.js"></script>';
-            $onLoad = '
-                window.addEvent("domready",initOnlineCheck)
-            ';
-		}
-		$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '
-			<script type="text/javascript">
-			/*<![CDATA[*/
-			<!--
-				var globFreq = '.$this->conf["checkIfChatIsOnline"].';
-				var globChatPid = '.$this->conf["chatPluginPid"].';				
-				'.$onLoad.'
-			// -->
-			/*]]>*/
-			</script>
-		';
+		if($this->conf["addPrototype"] || $this->conf["addMootools"]) {
+			if($this->conf["addPrototype"] && $this->conf["usePrototype"]) {
+				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/prototype.js"></script>';
+			}
+			if($this->conf["addMootools"] && $this->conf["useMootools"]) {
+				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.1-core.js"></script>';
+			}
+			$jsCheckPids = $this->checkForOnlineOfflinePages();
+			if($jsCheckPids) {
+				if($this->conf["usePrototype"]) {
+					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline.js"></script>';
+					$onLoad = '
+						Event.observe(window, "load", initOnlineCheck);
+					';
+				}
+				else {
+					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline_Mootools.js"></script>';
+					$onLoad = '
+						window.addEvent("domready",initOnlineCheck)
+					';
+				}
+			}	
+			else {
+				// no online/offline check in FE
+				$onLoad = '';
+			}
+			$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '
+				<script type="text/javascript">
+				/*<![CDATA[*/
+				<!--
+					var globFreq = '.$this->conf["checkIfChatIsOnline"].';
+					var checkPids = "'.$jsCheckPids.'";				
+					'.$onLoad.'
+				// -->
+				/*]]>*/
+				</script>
+			';
+		}	
 		return;
 	}
 	
@@ -212,7 +222,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 	 */
 	function showSupportButton() {
 		// check if Chat is online or offline (if page where chat is stored is hidden or not)
-		$chatIsOnline = tx_chat_functions::checkIfChatIsOnline($this->conf["chatPluginPid"]);
+		$chatIsOnline = tx_chat_functions::checkIfChatIsOnline($this->checkPids);
 		$out = $this->cObj->getSubpart($this->templateCode, '###SHOW_SUPPORT_LOGO###');	
 		// get the offline Variant
 		$image = '<img src="'.tx_chat_functions::getPath($this->conf["offlineLogo"]).'" alt="Support Chat Offline" title="Support Chat Offline" />';
@@ -221,7 +231,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 			"###IMAGE###" => $this->cObj->stdWrap($image,$this->conf["offlineLogo."]["stdWrap."]),
 			"###STATUS_MSG###" => $this->pi_getLL("status_msg_offline")
 		);
-		if($chatIsOnline) { 
+		if($chatIsOnline[$this->conf["chatPluginPid"]]) { 
 			$onlineClass = "";
 			$offlineClass = 'class="hidden"';			
 		}
@@ -229,23 +239,46 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 			$onlineClass = 'class="hidden"';
 			$offlineClass = "";			
 		} 
-		$offline = '<div '.$offlineClass.' id="tx_snisupportchat_pi1_offlineLogo">'.$this->cObj->substituteMarkerArrayCached($out,$markerArray).'</div>';
+		$offline = '<div '.$offlineClass.' id="tx_snisupportchat_pi1_offlineLogo_'.$this->conf["chatPluginPid"].'">'.$this->cObj->substituteMarkerArrayCached($out,$markerArray).'</div>';
 		// get the online Variant
 		$image = '<img src="'.tx_chat_functions::getPath($this->conf["onlineLogo"]).'" alt="Support Chat Online" title="Support Chat Online" />';
-		$params = Array(
+/*		$params = Array(
 			"tx_snisupportchat_pi1[cmd]" => "openChat" 
-		);
-		$openChatLink = $this->pi_getPageLink($this->conf["chatPluginPid"],'',$params);
+		); */
+		// typolink does not create the link if page is hidden
+		// $openChatLink = $this->pi_getPageLink($this->conf["chatPluginPid"],'',$params);
+		$openChatLink = 'index.php?id='.$this->conf["chatPluginPid"].'&tx_snisupportchat_pi1[cmd]=openChat';
 		$markerArray = Array(
 			"###TITLE###" => $this->pi_getLL("support-logo-header"),
 			"###IMAGE###" => '<a href="'.$this->pi_getPageLink($this->conf["chatNotSupportedPage"]).'" onclick="sniSupportchatOpenWindow(\''.$openChatLink.'\',\'snisupportchatwindow\',\''.$this->conf["chatWindowJsParams"].'\'); return false;" target="_blank">'.$image.'</a>',
 			"###STATUS_MSG###" => $this->pi_getLL("status_msg_online")
 		);		
-		$online = '<div '.$onlineClass.' id="tx_snisupportchat_pi1_onlineLogo">'.$this->cObj->substituteMarkerArrayCached($out,$markerArray).'</div>';
+		$online = '<div '.$onlineClass.' id="tx_snisupportchat_pi1_onlineLogo_'.$this->conf["chatPluginPid"].'">'.$this->cObj->substituteMarkerArrayCached($out,$markerArray).'</div>';
 		$content = $online.$offline;		
 		return ($content);
 	}
-	
+
+	/**
+	* @return comma separated list of pages which this plugin instance should check if offline or online
+	*/
+	function checkForOnlineOfflinePages($forceThisUid=false) {
+		if(trim($this->conf["checkIfChatIsOnlinePids"])) {
+            if(trim($this->conf["checkIfChatIsOnlinePids"]) == "this") {
+                $checkPids = $this->conf["chatPluginPid"];
+            }
+            else {
+                $checkPids = trim($this->conf["checkIfChatIsOnlinePids"]);
+            }
+		}
+		else {
+			$checkPids = 0;
+		}
+		if($forceThisUid) {
+			$checkPids = $this->conf["chatPluginPid"];
+		}
+		return ($checkPids);
+	}
+
 	/**
 	 * Checks if the Surfer has JS enabled and if a sessionID exists
 	 * @return SessionId or Zero if no javascript or no sessionId

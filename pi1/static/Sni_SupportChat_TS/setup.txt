@@ -3,6 +3,9 @@ plugin.tx_snisupportchat_pi1 {
 	addPrototype = 1
 	usePrototype = 1
 	checkIfChatIsOnline = 30
+	# "this" or list uf uids for Chat FE-Plugin Pages to check if respective chats are online or offline
+	# if this value is empty then no Online/Offline check is made in FE
+    checkIfChatIsOnlinePids = this
 	chatPluginPid =
 	chatsPid =
     offlineLogo = EXT:sni_supportchat/pics/offline.jpg
@@ -13,6 +16,7 @@ plugin.tx_snisupportchat_pi1 {
 	strftime = %H:%M:%S
 
 	getMessagesInSeconds = 2
+
 	_CSS_DEFAULT_STYLE (
 .tx-snisupportchat-pi1 h2 {
 	font-size: 1em;

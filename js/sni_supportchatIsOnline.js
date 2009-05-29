@@ -1,32 +1,39 @@
 /**** check if the supportChat is online ****/
 
 function initOnlineCheck() {
-	AjaxChatCheck.checkIfOnline();
+    if(checkPids) {
+		AjaxChatCheck.checkIfOnline(checkPids);
+	}	
 }
 
 var AjaxChatCheck = {
 	timer:'',
-	checkIfOnline:function() {
+	checkIfOnline:function(pids) {
 		this.timer = new Ajax.PeriodicalUpdater(
 			"",
-			"index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPid="+globChatPid, {
+			"index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+pids, {
 				method:'get',
 				onSuccess:function(r) {
-					online = r.responseText;
-					onlineChat = document.getElementById("tx_snisupportchat_pi1_onlineLogo");
-					offlineChat = document.getElementById("tx_snisupportchat_pi1_offlineLogo");
-					if(online==1 && onlineChat.className == "hidden") {
-						offlineChat.className = "hidden";
-						offlineChat.style.display = "none";
-						onlineChat.className = "";
-						onlineChat.style.display = "inline";
-					}
-					else {
-						if(online==0 && offlineChat.className == "hidden") {
-							onlineChat.className = "hidden";
-							onlineChat.style.display = "none";
-							offlineChat.className = "";
-							offlineChat.style.display = "inline";
+					online = r.responseXML;
+					var els = online.getElementsByTagName("numIndex");
+					for(var i=0; i<els.length; i++) {
+						var chatUid = els[i].getAttribute("index");
+						var isOnline = els[i].childNodes[0].nodeValue;
+	                    onlineChat = $("tx_snisupportchat_pi1_onlineLogo_"+chatUid);
+    	                offlineChat = $("tx_snisupportchat_pi1_offlineLogo_"+chatUid);
+						if(isOnline == 1 && onlineChat.className == "hidden") {
+	                        offlineChat.className = "hidden";
+    	                    offlineChat.style.display = "none";
+        	                onlineChat.className = "";
+            	            onlineChat.style.display = "inline";
+						}
+						else {
+                        	if(isOnline==0 && offlineChat.className == "hidden") {
+	                            onlineChat.className = "hidden";
+    	                        onlineChat.style.display = "none";
+        	                    offlineChat.className = "";
+            	                offlineChat.style.display = "inline";
+							}
 						}
 					}
 				},

@@ -3,15 +3,23 @@ class tx_chat_functions {
 
     /**
     * Checks if the chat is online
-    * @return boolean 
+    * @return Array ("chatsPluginPid" => boolen(on- or offline), ...)
     */
-    function checkIfChatIsOnline($pid) {
+    function checkIfChatIsOnline($pids) {
         global $TYPO3_DB;
         $table="pages";
-        $res = $TYPO3_DB->exec_SELECTquery("hidden",$table,'uid='.intval($pid));
-        $row = $TYPO3_DB->sql_fetch_assoc($res);
-        $chatIsOnline = $row["hidden"] ? 0 : 1;
-
+		// security
+		$pid = explode(',',$pids);
+		$pids = "";
+		foreach ($pid as $uid) {
+			$pids .= ','.(intval($uid));
+		}
+		$pids = substr($pids,1);
+        $res = $TYPO3_DB->exec_SELECTquery("uid,hidden",$table,'uid IN ('.$pids.')');
+		$retArray = Array();
+		while ($row = $TYPO3_DB->sql_fetch_assoc($res)) {
+			$retArray[$row["uid"]] = $row["hidden"] ? 0 : 1;
+		}
         // Hook for youre own chatIsOnline function 
         $hookObjectsArr = array();
         if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sni_supportchat/checkIfOnline'])) {
@@ -22,11 +30,11 @@ class tx_chat_functions {
 
         foreach($hookObjectsArr as $hookObj)    {
             if (method_exists($hookObj, 'checkIfChatIsOnline')) {
-                $chatIsOnline =  $hookObj->checkIfChatIsOnline($chatIsOnline,$this);
+                $retArray =  $hookObj->checkIfChatIsOnline($pids,$retArray,$this);
             }
         }
 
-        return ($chatIsOnline);
+        return ($retArray);
     }
 
     /**

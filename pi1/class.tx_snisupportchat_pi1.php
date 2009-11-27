@@ -179,7 +179,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$pid = $this->conf["chatsPid"] ? $this->conf["chatsPid"] : $GLOBALS["TSFE"]->id;
 		$lang = intval(t3lib_div::_GET("L")) ? "&L=".intval(t3lib_div::_GET("L")) : "";
 		$freq = $this->conf["getMessagesInSeconds"]*1000;
-		$chatUsername = $GLOBALS["TSFE"]->fe_user->user["uid"] ? addslashes($GLOBALS["TSFE"]->fe_user->user["name"]) : addslashes($this->pi_getLL("chat-username"));
+		$chatUsername = $GLOBALS["TSFE"]->fe_user->user["uid"] ? ($GLOBALS["TSFE"]->fe_user->user["first_name"] ? ($GLOBALS["TSFE"]->fe_user->user["first_name"]." ".$GLOBALS["TSFE"]->fe_user->user["last_name"]) : addslashes($GLOBALS["TSFE"]->fe_user->user["name"])) : addslashes($this->pi_getLL("chat-username"));
 		$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '
 			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.1-core.js"></script>
             <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2-more.js"></script>

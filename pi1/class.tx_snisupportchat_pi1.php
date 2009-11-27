@@ -127,7 +127,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 	 *
 	 */
 	function addJsInHeaderForCheckIfChatIsOnline() {
-		if($this->conf["addPrototype"] || $this->conf["addMootools"]) {
+		if($this->conf["usePrototype"] || $this->conf["useMootools"]) {
 			if($this->conf["addPrototype"] && $this->conf["usePrototype"]) {
 				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/prototype.js"></script>';
 			}
@@ -247,7 +247,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		); */
 		// typolink does not create the link if page is hidden
 		// $openChatLink = $this->pi_getPageLink($this->conf["chatPluginPid"],'',$params);
-		$openChatLink = 'index.php?id='.$this->conf["chatPluginPid"].'&tx_snisupportchat_pi1[cmd]=openChat';
+		$openChatLink = '/index.php?id='.$this->conf["chatPluginPid"].'&tx_snisupportchat_pi1[cmd]=openChat';
 		$markerArray = Array(
 			"###TITLE###" => $this->pi_getLL("support-logo-header"),
 			"###IMAGE###" => '<a href="'.$this->pi_getPageLink($this->conf["chatNotSupportedPage"]).'" onclick="sniSupportchatOpenWindow(\''.$openChatLink.'\',\'snisupportchatwindow\',\''.$this->conf["chatWindowJsParams"].'\'); return false;" target="_blank">'.$image.'</a>',

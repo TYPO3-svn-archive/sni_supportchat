@@ -25,10 +25,10 @@ var checker = new Class({
 		this.request.send();	
 	},
 	"checkItDone": function(respText,respXml) {
-		var els = respXml.getElements("numIndex");
-		els.each(function(item,index) {
-			var chatUid = item.get("index");
-			var isOnline = item.get("text"); 
+		var els = respXml.getElementsByTagName("numIndex");
+		for (var i=0; i<els.length; i++) {
+			var chatUid = els[i].getAttribute("index");
+			var isOnline = els[i].childNodes[0].nodeValue;
 			onlineChat = $("tx_snisupportchat_pi1_onlineLogo_"+chatUid);
 			offlineChat = $("tx_snisupportchat_pi1_offlineLogo_"+chatUid);
 			if(isOnline == 1 && onlineChat.className == "hidden") {
@@ -46,7 +46,7 @@ var checker = new Class({
 				}
 			}
 
-		});
+		}
 		this.timer = this.checkIt.delay(this.frequency,this);
 	}
 });
@@ -57,4 +57,3 @@ function sniSupportchatOpenWindow(url,winName,winParams) {
 		sniTheWindow.focus();
 	}
 }
-

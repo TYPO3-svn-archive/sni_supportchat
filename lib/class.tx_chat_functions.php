@@ -81,6 +81,7 @@ class tx_chat_functions {
     * Prints the content for AJAX Request
     */
     function printResponse($content) {
+		ob_clean();
         header('Expires: Mon, 26 Jul 1990 05:00:00 GMT');
         header('Last-Modified: ' . gmdate( "D, d M Y H:i:s" ) . 'GMT');
         header('Cache-Control: no-cache, must-revalidate');

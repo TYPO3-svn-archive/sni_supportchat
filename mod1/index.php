@@ -203,8 +203,8 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery("uid,flag,title",$table,'1');		
 		$jsCode = '
 			<link rel="stylesheet" type="text/css" href="chat.css" />
-			<script type="text/javascript" src="../js/mootools-1.2.1-core.js"></script>
-            <script type="text/javascript" src="../js/mootools-1.2-more.js"></script>
+			<script type="text/javascript" src="../js/mootools-1.2.4-core-yc.js"></script>
+            <script type="text/javascript" src="../js/mootools-1.2.4.2-more.js"></script>
 			<script type="text/javascript" src="../js/Element.Forms.js"></script>
 			<script type="text/javascript" src="../js/UvumiDropdown-compressed.js"></script>
 			<script type="text/javascript" src="../js/sni_supportchat_be.js"></script> 

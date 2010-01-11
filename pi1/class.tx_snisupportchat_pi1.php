@@ -132,7 +132,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/prototype.js"></script>';
 			}
 			if($this->conf["addMootools"] && $this->conf["useMootools"]) {
-				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.1-core.js"></script>';
+				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4-core-yc.js"></script>';
 			}
 			$jsCheckPids = $this->checkForOnlineOfflinePages();
 			if($jsCheckPids) {
@@ -181,8 +181,8 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$freq = $this->conf["getMessagesInSeconds"]*1000;
 		$chatUsername = $GLOBALS["TSFE"]->fe_user->user["uid"] ? ($GLOBALS["TSFE"]->fe_user->user["first_name"] ? ($GLOBALS["TSFE"]->fe_user->user["first_name"]." ".$GLOBALS["TSFE"]->fe_user->user["last_name"]) : addslashes($GLOBALS["TSFE"]->fe_user->user["name"])) : addslashes($this->pi_getLL("chat-username"));
 		$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '
-			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.1-core.js"></script>
-            <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2-more.js"></script>
+			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4-core-yc.js"></script>
+            <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4.2-more.js"></script>
 			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/sni_supportchat.js"></script>		
 			<script type="text/javascript">
 			/*<![CDATA[*/

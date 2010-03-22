@@ -40,6 +40,7 @@ p.alert input {vertical-align: middle; }
 .single_chatbox span.fe_user_message { color: #2eaf37; }
 		
 .single_chatbox span.message { color: #000000; }
+.single_chatbox span.message img { vertical-align: middle; }
 
 .single_chatbox a { color: #000000; text-decoration: underline; }
 .single_chatbox a:hover { text-decoration: none; }

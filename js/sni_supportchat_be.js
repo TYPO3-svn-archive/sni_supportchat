@@ -619,8 +619,17 @@ var message = new Class({
 		this.fromSupportler = fromSupportler;
 		this.toSupportler = toSupportler;
 		this.name = name;
-		this.message = message;
+		if(this.code == "beuser" || this.code == "feuser") {
+			$each(sniSupportChatSmilies,function(img,key) {
+				var theImg = '<img src="../pics/smiley/'+img+'" />';
+				message = this.str_replace(key,theImg,message);
+			}.bind(this));
+		}
+        this.message = message;
 	},
+    str_replace: function(search, replace, subject) {
+        return subject.split(search).join(replace);
+    },
 	"getNode": function() {
 		// create the message HTML nodes
 		var msg = new Element("p");

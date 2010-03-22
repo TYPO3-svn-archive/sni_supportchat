@@ -141,8 +141,17 @@ var AjaxChat = new Class({
 			this.timer = this.getAll.delay(this.freq,this);
 		}
 	},
+	str_replace: function(search, replace, subject) {
+	    return subject.split(search).join(replace);
+	},
 	"insertMessage": function(message,code,name,time) {
 		/* inserts a Message in the Chatbox (HTML) and scrolls the texbox */
+		if(code!= "system") {
+			$each(sniSupportChatSmilies,function(img,key) {
+				var theImg = '<img src="typo3conf/ext/sni_supportchat/pics/smiley/'+img+'" />';
+				message = this.str_replace(key,theImg,message);
+			}.bind(this)); 
+		}	
 		if(code!="title") {
 			var user = "";
 			switch (code) {

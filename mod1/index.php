@@ -207,6 +207,7 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
             <script type="text/javascript" src="../js/mootools-1.2.4.2-more.js"></script>
 			<script type="text/javascript" src="../js/Element.Forms.js"></script>
 			<script type="text/javascript" src="../js/UvumiDropdown-compressed.js"></script>
+            <script type="text/javascript" src="../js/smilies.js"></script>
 			<script type="text/javascript" src="../js/sni_supportchat_be.js"></script> 
 			<script type="text/javascript">
             /*<![CDATA[*/

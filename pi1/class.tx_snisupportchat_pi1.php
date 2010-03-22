@@ -183,6 +183,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '
 			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4-core-yc.js"></script>
             <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4.2-more.js"></script>
+            <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/smilies.js"></script>
 			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/sni_supportchat.js"></script>		
 			<script type="text/javascript">
 			/*<![CDATA[*/

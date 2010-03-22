@@ -32,6 +32,7 @@ p.alert input {vertical-align: middle; }
 .chat_single_wrap a.unlock_it { background: transparent url(img/encrypted.jpg) no-repeat center center; }
 
 .chat_single_wrap a.loading { background: transparent url(img/loading.gif) no-repeat center center; }
+.chat_single_wrap h3 p span.snillo { color: #000; }
 
 .single_chatbox span.date { color: #9C8F8F; }
 .single_chatbox span.system_message {color: #EB1557; }

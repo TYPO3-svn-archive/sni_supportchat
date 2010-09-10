@@ -84,10 +84,10 @@ var AjaxChat = new Class({
 		var postMessages = "";
 		this.msgToSend.each(function(item,index) {
 			if(item) {
-				postMessages += "&msgToSend["+index+"]="+item;
+				postMessages +="&msgToSend["+index+"]="+encodeURIComponent(item);
 			}	
 		}.bind(this));
-		if(postMessages != "") {
+		if(postMessages) {
 			postMessages += "&chatUsername="+diffLang.chatUsername;
 		}
 		this.msgToSend.empty(); // clean the array of post messages

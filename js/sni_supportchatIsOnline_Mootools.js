@@ -13,7 +13,7 @@ var checker = new Class({
 		this.frequency = frequency*1000;
 		this.timer = null; 
 		this.request = new Request({
-			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+this.pids,
+			"url": "/index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+this.pids,
 			"method": "get",
 			"link": "cancel",
 			"onComplete": this.checkItDone.bind(this)

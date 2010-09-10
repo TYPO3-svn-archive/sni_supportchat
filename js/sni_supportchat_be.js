@@ -196,7 +196,7 @@ var chatMarket = new Class({
 			// send messages
 			item.msgToSend.each(function(itemM,indexM) {
 				if(itemM!="") {
-					this.msgToSendQuery += "&msgToSend["+item.uid+"]["+indexM+"]="+itemM;
+					this.msgToSendQuery += "&msgToSend["+item.uid+"]["+indexM+"]="+encodeURIComponent(itemM);
 				}	
 			}.bind(this));
 			// delete the msgToSend Array

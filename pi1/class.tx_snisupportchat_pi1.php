@@ -243,18 +243,13 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$offline = '<div '.$offlineClass.' id="tx_snisupportchat_pi1_offlineLogo_'.$this->conf["chatPluginPid"].'">'.$this->cObj->substituteMarkerArrayCached($out,$markerArray).'</div>';
 		// get the online Variant
 		$image = '<img src="'.tx_chat_functions::getPath($this->conf["onlineLogo"]).'" alt="Support Chat Online" title="Support Chat Online" />';
-/*		$params = Array(
-			"tx_snisupportchat_pi1[cmd]" => "openChat" 
-		); */
-		// typolink does not create the link if page is hidden
-		// $openChatLink = $this->pi_getPageLink($this->conf["chatPluginPid"],'',$params);
-		if(t3lib_div::_GP("L")) {
-			$addParams = "&amp;L=".t3lib_div::_GP("L");
-		}
-		else {
-			$addParams = "";
-		}
-		$openChatLink = '/index.php?id='.$this->conf["chatPluginPid"].'&amp;tx_snisupportchat_pi1[cmd]=openChat'.$addParams;
+        $linkConf = Array(
+            "parameter" => $this->conf["chatPluginPid"],
+            "linkAccessRestrictedPages" => 1,
+            "additionalParams" => "&tx_snisupportchat_pi1[cmd]=openChat",
+            "returnLast" => "url"
+        );
+        $openChatLink = $this->cObj->typolink("",$linkConf);
 		$markerArray = Array(
 			"###TITLE###" => $this->pi_getLL("support-logo-header"),
 			"###IMAGE###" => '<a href="'.$this->pi_getPageLink($this->conf["chatNotSupportedPage"]).'" onclick="sniSupportchatOpenWindow(\''.$openChatLink.'\',\'snisupportchatwindow\',\''.$this->conf["chatWindowJsParams"].'\'); return false;" target="_blank">'.$image.'</a>',

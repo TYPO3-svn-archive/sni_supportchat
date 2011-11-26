@@ -162,17 +162,16 @@ class chat extends tx_chat_functions {
         $message = htmlspecialchars($message);
 		$message = $this->html_activate_links($message);		
 
-        // Hook for own processing of posted message  
+        /* DEPRECATED HOOK since 26.11.11 - use preInsertMessage instead */
         $hookObjectsArr = array();
         if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sni_supportchat/prePostMessage'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sni_supportchat/prePostMessage'] as $classRef) {
                 $hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
             }
         }
-
         foreach($hookObjectsArr as $hookObj)    {
             if (method_exists($hookObj, 'prePostMessage')) {
-                $message = $hookObj->prePostMessage($message,$this);
+                $message = $hookObj->prePostMessage($message,$this); // DEPRECATED HOOK since 26.11.11 - use preInsertMessage instead
             }
         }
 		
@@ -187,6 +186,21 @@ class chat extends tx_chat_functions {
 			"name" => $name,
 			"message" => $message
 		); 
+
+        // Hook for own processing of posted message  
+        $hookObjectsArr = array();
+        if (is_array ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sni_supportchat/insertMessage'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['sni_supportchat/insertMessage'] as $classRef) {
+                $hookObjectsArr[] = &t3lib_div::getUserObj($classRef);
+            }
+        }
+
+        foreach($hookObjectsArr as $hookObj)    {
+            if (method_exists($hookObj, 'preInsertMessage')) {
+                $message = $hookObj->preInsertMessage($insertData,$this);
+            }
+        }
+
 	    $table = "tx_snisupportchat_messages";
     	$TYPO3_DB->exec_INSERTquery($table,$insertData);
         $messageUid = $TYPO3_DB->sql_insert_id();

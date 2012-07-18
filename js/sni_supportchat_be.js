@@ -1,19 +1,23 @@
 // called on domready, create the chat
-function initChat(freq) {
- 	var theChatMarket = new chatMarket(freq);
+function initChat(freq,useTypingIndicator) {
+ 	var theChatMarket = new chatMarket(freq,useTypingIndicator);
 }
 
 /**
 * Handler Object for all Chats
 */
 var chatMarket = new Class({
-	"initialize": function(freq) {
+	"initialize": function(freq,useTypingIndicator) {
 		this.freq = freq; // the period for the request
+		/** tradem 2012-04-11 Used to control notification & display of typing indicator */
+		this.useTypingIndicator = useTypingIndicator;
 		this.chats = new Array(); // Array to gather the Chat Objects, key=the chat uid, value = the chat object
 		this.lastRowQuery = ""; // the last row GetVar Array: key => chatUid, value => lastRow
 		this.msgToSendQuery = ""; 
 		this.lockChatQuery = "";
 		this.destroyChatQuery = "";
+		/*added for typingStatus*/
+		this.typingStatusQuery = "";
 		this.lastLogRow = 0; // the last log row uid 
 		this.log = new log();
 		this.beUserStorage = new beUserMarket(); // the current logged in be-users
@@ -38,8 +42,12 @@ var chatMarket = new Class({
 		/* periodically called function which does all (get Chats,messages, send messages, destroy chats, lock/unlock chats) */
 		$clear(timer); // just to be sure
 		this.getChatsPostData(); // get all dyn handle data as query strings
+		
+		/** tradem 2012-04-04  Added typingStatusQuery */
+		var data = "cmd=doAll"+this.lastRowQuery+"&lastLogRow="+this.lastLogRow+this.msgToSendQuery+this.lockChatQuery+this.destroyChatQuery+this.typingStatusQuery;
+		/** tradem 2012-04-04  Modifed */
 		theRequest.send({
-			"data": "cmd=doAll"+this.lastRowQuery+"&lastLogRow="+this.lastLogRow+this.msgToSendQuery+this.lockChatQuery+this.destroyChatQuery,
+			"data": data,
 			"method": "post"
 		});
 	},
@@ -80,6 +88,11 @@ var chatMarket = new Class({
 									// just update lastRow, strftime and Be-Users if they has changed
 									theChat.updateLastRow(lastRow);
 	                                theChat.updateBeUsers(this.beUserStorage);
+	                                
+                                    /** tradem 2011-04-11 Show indicator if configured only.*/
+                                    /*added for typingStatus*/
+                                    theChat.updateTypingStatus(item.childNodes[9].firstChild.nodeValue);
+
 								}
 								else {
 									// create a chat object
@@ -95,7 +108,7 @@ var chatMarket = new Class({
 										// only if Hook in lib/class.tx_chatMarket.php is used!
 										data = this.getTextNode(addInfo[0].firstChild);
 									}
-									theChat = new chat(uid,crdate,language,be_user,lastRow,surfer_ip,lImg,lLabel,data);
+									theChat = new chat(uid,this.useTypingIndicator,crdate,language,be_user,lastRow,surfer_ip,lImg,lLabel,data);
 									this.chats.include(theChat);
 	                                theChat.updateBeUsers(this.beUserStorage,1); // force create the be-users select
 								}	
@@ -188,6 +201,9 @@ var chatMarket = new Class({
 		this.msgToSendQuery = "";
 		this.lockChatQuery = "";
 		this.destroyChatQuery = "";
+		/*added for typingStatus*/
+        /** tradem: 2012-04-04 Added new postVar*/
+		this.typingStatusQuery = "";
 		this.chats.each(function(item,index) {
 			// last Row
 			if(item.lastRow) {
@@ -202,6 +218,11 @@ var chatMarket = new Class({
 			// delete the msgToSend Array
 			item.msgToSend.empty();
 			// lock / unlock Chat 
+			/** tradem: 2012-04-04 set the post variable with current typingStatus*/
+			if($chk(item.typingStatus)) {
+				/*added for typingStatus*/
+			   this.typingStatusQuery += "&typingStatus["+item.uid+"]="+item.typingStatus;                           			   
+			}	
 			if($chk(item.lockReq)) {
 				this.lockChatQuery += "&lockChat["+item.uid+"]="+item.lockReq;	
 				item.lockReq = null;
@@ -230,8 +251,9 @@ var chat = new Class({
 	"options": {
 
 	},
-	"initialize": function(uid,crdate,language,be_user,lastRow,surferIp,lImg,lLabel,additionalInfo,options) {
+	"initialize": function(uid,useTypingIndicator,crdate,language,be_user,lastRow,surferIp,lImg,lLabel,additionalInfo,options) {
 		this.setOptions(options);
+		this.useTypingIndicator = useTypingIndicator;
 		this.uid = uid;
 		this.crdate = crdate;
 		this.language = language;
@@ -246,6 +268,8 @@ var chat = new Class({
 		this.destroyReq = 0;
 		this.msgToSend = Array();
 		this.additionalInfo = additionalInfo;
+		/*added for typingStatus*/
+		this.typingStatus = 0;
 		if(be_user) {
 			this.chatLocked = 1;
 		}
@@ -361,12 +385,18 @@ var chat = new Class({
 				"class": "status_icon lock_it",
 				"html": "&nbsp;"
 			});
+			/*added for typingStatus*/
+			var typingIcon = new Element("img",{
+				"id": this.idTypingIcon,
+				"class": "not_typing",
+				"src": "../pics/typing.png"
+			});
 			var status = new Element("p", {
 				"id": this.idStatus,
 				"class": "chatbox_status",
 				"text": LL.status_unlocked
 			});
-			wrap.adopt(topDiv,title,chatbox,textBoxLabel,textArea,assumeIcon,status);
+			wrap.adopt(topDiv,title,chatbox,textBoxLabel,textArea,assumeIcon,typingIcon,status); /*added for typingStatus*/
 			// insert in html with opacity tween
 			wrap.setStyle("opacity",0);
 			$(this.idChatboxOuter).adopt(wrap);
@@ -455,6 +485,11 @@ var chat = new Class({
 			this.chatLocked = 0;
 		}
 	},
+	/*added for typingStatus*/
+	"resetTypingStatus": function() {
+	    this.typingStatus = 0;
+	    $clear(this.resetTimer);
+	},
 	"addEvents": function() {
 	    /* add all events we are using in a single chatbox */
 		$(this.idTextarea).addEvents({
@@ -476,6 +511,14 @@ var chat = new Class({
 	        	    $(this.idFixTextUl).addClass("invisible");
 					e.stop();
 				}
+			}.bind(this),									
+				/*added for typingStatus*/
+				"isTyping": function() {
+					/** tradem 2012-04-11 Only registere event 'isTyping' if typingStatus has been configured. */
+					if (this.useTypingIndicator == 1) {
+						this.typingStatus = 1;
+					    this.resetTimer = this.resetTypingStatus.delay(3500,this);
+					}				    
 			}.bind(this)
 		});
 		$(this.idClose).addEvents({
@@ -490,6 +533,9 @@ var chat = new Class({
 		/* set all HTML id's */
 		this.idChatboxWrap = "chatBoxWrap_"+this.uid;
 		this.idAssumeIcon = "assumeChat_"+this.uid;
+		/*added for typingStatus*/
+		this.idTypingIcon = "typingIcon_"+this.uid;
+		
 		this.idChatbox = "chatBox_"+this.uid;
 		this.idTextarea = "chatTextarea_"+this.uid;
 		this.idChatboxOuter = "chatboxes_wrap";
@@ -570,6 +616,20 @@ var chat = new Class({
 			ul.getLast("li").addClass("last");
 			this.beUserSelectNode = ul;
 		}
+	},
+	/*added for typingStatus*/
+	"updateTypingStatus": function(status) {
+	    if(status == 1) {
+	        if($(this.idTypingIcon).hasClass("not_typing")) {
+	            $(this.idTypingIcon).addClass("typing");
+	            $(this.idTypingIcon).removeClass("not_typing");
+	        }
+	    } else {
+	        if($(this.idTypingIcon).hasClass("typing")) {
+	            $(this.idTypingIcon).addClass("not_typing");
+	            $(this.idTypingIcon).removeClass("typing");
+	        }
+	    }
 	},
 	/* stickyWin with message why */
 	"assumeChatToUser": function(beUserUid) {
@@ -738,3 +798,19 @@ Element.Events.enterButtonDown = {
         }
     }
 };
+/*added for typingStatus*/
+/** tradem: 2012-04-04: Added IsTyping Event. Filters out Enter-key and Alt-Key
+ * @see 
+ */
+Element.Events.isTyping = {
+    base: 'keypress', //we set a base type
+    condition: function(event){ //and a function to perform additional checks.
+        if(event.key== 13 || event.key == 9) { // 13 = ENTER; 9 = Alt 
+            return (false);
+        }
+        else {
+            return (true);
+        }
+    }
+};
+

@@ -25,6 +25,10 @@
  * Plugin 'Support Chat' for the 'sni_supportchat' extension.
  *
  * @author	Georg Schönweger <Georg.Schoenweger@gmail.com>
+ * 
+ * Revision History:
+ * 
+ * tradem 2012-04-11 Added some basic code to make typing indicator configurable. 
  */
 
 require_once(t3lib_extMgm::extPath('sni_supportchat').'lib/class.tx_chat.php');
@@ -49,6 +53,8 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$this->pi_loadLL();		
 		$this->templateCode = $this->cObj->fileResource($this->conf["templateFile"]);
 		$this->checkPids = $this->checkForOnlineOfflinePages(true);
+		/** tradem 2012-04-11 Sets typing indicator */
+		$this->useTypingIndicator = $this->loadUsingTypingIndicator();
 		$cmd = $this->piVars["cmd"];
 		switch ($cmd) {
 			case 'openChat':
@@ -61,7 +67,9 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 					if($chatIsOnline[$this->conf["chatPluginPid"]]) {
 //						tx_chat_functions::destroyInactiveChats($this->conf["timeToInactivateChatIfNoMessages"],$this->conf["chatsPid"]);
 				        $chat = new chat();
-				        $chat->initChat($this->conf["chatsPid"],"");
+                        /** tradem 2012-04-12 Pass typing inidcator usage configuration */
+// 				        	$chat->writeLog("Frontend : useTypingIndicator=[" .$this->useTypingIndicator. "]");
+                        $chat->initChat($this->conf["chatsPid"],"",0,$this->useTypingIndicator );
 						$chat->destroyInactiveChats($this->conf["timeToInactivateChatIfNoMessages"]);
 						$this->addJsInHeader($sessionId,$chatUid);
 						$content = $this->generateChatBox();											
@@ -117,6 +125,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 			"###CLOSE_ID###" => "sniChatClose",
 			"###CLOSE_LABEL###" => $this->pi_getLL("chatbox-close"),
 			"###ERROR###" => $this->pi_getLL("noJsOrCookies-text"), 
+			"###EXPORT_TEXT###" => $this->pi_getLL("chatbox-export"),
 		);
 		$content = $this->cObj->substituteMarkerArrayCached($out,$markerArray);		
 		return($content);
@@ -179,6 +188,8 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$pid = $this->conf["chatsPid"] ? $this->conf["chatsPid"] : $GLOBALS["TSFE"]->id;
 		$lang = intval(t3lib_div::_GET("L")) ? "&L=".intval(t3lib_div::_GET("L")) : "";
 		$freq = $this->conf["getMessagesInSeconds"]*1000;
+		/* tradem 2012-04-11 Added JS-Variable for typing indicator */		
+		$useTypingIndicator =  $this->useTypingIndicator;
 		$chatUsername = $GLOBALS["TSFE"]->fe_user->user["uid"] ? ($GLOBALS["TSFE"]->fe_user->user["first_name"] ? ($GLOBALS["TSFE"]->fe_user->user["first_name"]." ".$GLOBALS["TSFE"]->fe_user->user["last_name"]) : addslashes($GLOBALS["TSFE"]->fe_user->user["name"])) : addslashes($this->pi_getLL("chat-username"));
 		$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '
 			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4-core-yc.js"></script>
@@ -194,6 +205,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 				var globLang = "'.$lang.'";
 				var fe_user_name = "'.$GLOBALS["TSFE"]->fe_user->user["name"].'";
 				var timeFormated = "'.strftime($this->conf["strftime"],time()).'";
+				var useTypingIndicator = '.$useTypingIndicator.'; // tradem 2012-04-11 Added JS-Variable for typing indicator 				
 				var diffLang = {
 					\'chatboxTitleBeUserOk\': \''.addslashes($this->pi_getLL("chatbox-title-be-user-ok")).'\',
 					\'chatboxWelcome\': \''.addslashes($this->pi_getLL("chatbox-welcome")).'\',
@@ -210,6 +222,12 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 				window.addEvent("domready", function() {
 					initChat();
 				}); 
+				window.onbeforeunload = function() {
+					chat.destroyChat();
+					if(typeof(close_button_flag) == \'undefined\') { 
+					    alert("'.str_replace('\\\\', '\\', addslashes($this->pi_getLL("system-chat-byebye-alert"))).'");
+					}
+				}
 			// -->
 			/*]]>*/
 			</script>
@@ -306,6 +324,17 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		return ($content);
 	}
 	
+	/**
+	 * Checks if typing indicator is enabled in configuration or not.
+	 * Defaults to true.
+	 * 
+	 * @author tradem
+	 * @since 2012-04-11
+	 * @return true (1) or false (0)  
+	 */
+	function loadUsingTypingIndicator() {		         
+		return ($this->conf["useTypingIndicator"]) ? $this->conf["useTypingIndicator"] : 0;	
+	}
 }
 
 

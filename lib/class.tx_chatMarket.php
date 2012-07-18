@@ -36,7 +36,7 @@ class chatMarket extends chat {
 	* @param Array Chats which should be destroyed
 	* @return Array the chats with data
 	*/
-	function doAll($lastRowArray,$msgToSend,$lockChats,$destroyChats) {
+	function doAll($lastRowArray,$msgToSend,$lockChats,$destroyChats,$typingStatus) { /*added for typingStatus*/
         global $TYPO3_DB;
 		/* get the language Info */
 		$language = $this->getLanguageInfo();
@@ -64,6 +64,10 @@ class chatMarket extends chat {
 	                    $this->insertMessage($msg,"beuser",$this->beUserName);
 					}	
 				}
+				/*added for typingStatus*/
+				$tmp_status = unserialize($row['status']);
+				$tmp_status = $tmp_status['feu_typing'];
+				
 				$retArray[$i]["chatIndex"]["uid"] = $this->uid;
 				$retArray[$i]["chatIndex"]["lastRow"] = $this->lastRow;
 				$retArray[$i]["chatIndex"]["crdate"] = $this->renderTstamp($this->db["crdate"]);
@@ -73,6 +77,8 @@ class chatMarket extends chat {
 				$retArray[$i]["chatIndex"]["language_flag"] = $language[$this->db["language_uid"]]["flag"];
 				$retArray[$i]["chatIndex"]["language_label"] = $language[$this->db["language_uid"]]["label"];
 				$retArray[$i]["chatIndex"]["messages"] = $messages;
+				/*added for typingStatus*/
+				$retArray[$i]["chatIndex"]["status"] = ($tmp_status==1?1:0);
                 // lock chat ?
                 if(isset($lockChats[$this->uid])) {
                     $this->lockChat(intval($lockChats[$this->uid]));
@@ -83,6 +89,12 @@ class chatMarket extends chat {
 					$this->destroyChat();
 					$retArray[$i]["chatIndex"]["from_destroy_chat"] = 1;
 				}
+				/*added for typingStatus*/
+				// set typing status
+                if(isset($typingStatus[$this->uid])) {
+                    $this->saveTypingStatus(intval($typingStatus[$this->uid]));
+                }
+				
 				foreach($hookObjectsArr as $hookObj)    {
 					if (method_exists($hookObj, 'additionalInfo')) {
 						/* only one extension can use this hook for now! */

@@ -1,5 +1,9 @@
 (add new changes on top of this file)
 
-07-08-27 Georg Sch�nweger  <Georg.Schoenweger@gmail.com>
+2012-07-16 André Lahmann (andre.lahmann@uni-leipzig.de) and Tobias Rademacher (tradem) (Leipzig University Library)
+    * FE: added save-button for chatlog
+    * FE: closing the chat-window will terminate chat-session (does not work in Chrome)
+    * FE&BE: added icon to indicate that opposite user is currently typing
 
+2007-08-27 Georg Schönweger  <Georg.Schoenweger@gmail.com>
 	* Initial release

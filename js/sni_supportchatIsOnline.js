@@ -11,7 +11,7 @@ var AjaxChatCheck = {
 	checkIfOnline:function(pids) {
 		this.timer = new Ajax.PeriodicalUpdater(
 			"",
-			"/index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+pids, {
+			"index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+pids, {
 				method:'get',
 				onSuccess:function(r) {
 					online = r.responseXML;

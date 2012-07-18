@@ -53,6 +53,8 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
 	var $playAlert = 1; // play an alert sound yes or no
 	var $beUserName = ""; // the BE Username shown in the chat
 	var $showLogBox = 1; // Display the log box
+	/** tradem 2012-04-11 Added to control typing indiator */
+	var $useTypingIndicator = 0;  // controls if typing indicator should show up or not, defaults to false (0)
 
 	/**
 	 * Initializes the Module
@@ -68,6 +70,15 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
 		if(!$this->chatsPid) {
 			die('You must insert the BE-User TS-Config Var "sni_supportchat.chatsPid" !');				
 		}
+		
+		/** 2012-04-11 Added to control typing indiator if it works. */
+		// echo t3lib_div::debug($BE_USER->userTS["sni_supportchat."]["useTypingIndicator"], 'before init: useTypingIndicator in TS config array in init.php');
+		// echo t3lib_div::debug($this->useTypingIndicator, 'before init: this->useTypingIndicator in init.php');
+		if ($BE_USER->userTS["sni_supportchat."]["useTypingIndicator"]) {
+			$this->useTypingIndicator = $BE_USER->userTS["sni_supportchat."]["useTypingIndicator"] ;
+		}
+		// echo t3lib_div::debug($this->useTypingIndicator, 'after init: this->useTypingIndicator');
+						
 		if($BE_USER->userTS["sni_supportchat."]["ajaxGetAllFreq"]) {
 			$this->ajaxGetAllFreq = $BE_USER->userTS["sni_supportchat."]["ajaxGetAllFreq"];
 		}
@@ -199,6 +210,7 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
 	function addJsInHeader() {
 		global $LANG,$BACK_PATH,$BE_USER,$TYPO3_DB;
 		$frequency = $this->ajaxGetAllFreq * 1000;
+		$useTypingIndicator = $this->useTypingIndicator;
 		$table="sys_language";
 		$res = $TYPO3_DB->exec_SELECTquery("uid,flag,title",$table,'1');		
 		$jsCode = '
@@ -243,7 +255,7 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
 				var strftime = "";
 
 				window.addEvent("domready", function() {
-					initChat('.$frequency.');
+					initChat('.$frequency.','.$useTypingIndicator.');
 				});
             // -->
             /*]]>*/

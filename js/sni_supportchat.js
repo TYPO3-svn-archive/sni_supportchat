@@ -11,7 +11,9 @@ function checkJs() {
 }
 
 function initAjaxChat() {
-	var chat = new AjaxChat(globPid,globLang,globFreqMessages,timeFormated);
+	//define chat globally so that chatDestroy() can be performed without moocode
+	/** tradem Pass useTypingIndicator as constructor parameter */
+	chat = new AjaxChat(globPid,globLang,globFreqMessages,timeFormated,useTypingIndicator);
 	chat.createChat();
 }
 
@@ -26,7 +28,7 @@ var AjaxChat = new Class({
 			"chatbox": "snisupportchatbox"
 		}
 	},
-	"initialize": function(pid,lang,freq,time,options) {
+	"initialize": function(pid,lang,freq,time,useTypingIndicator,options) {
 		this.setOptions(options);
 		this.pid = pid;
 		this.lang = lang;
@@ -34,16 +36,28 @@ var AjaxChat = new Class({
 		this.strftime = time;
 		this.msgToSend = Array(); // storage for messages to send at the next request
 		this.inactive = 0;
+		/** tradem 2012-04-11 Used to control notification & display of typing indicator */
+		this.useTypingIndicator = useTypingIndicator; 
+		this.msgToSend = Array(); // storage for messages to send at the next request
+		this.inactive = 0;
+		
 		this.scrollDownAni = new Fx.Scroll(this.options.id.chatbox, {
             "duration": "short",
             "link": "cancel"
         });
 		$(this.options.id.textBox).focus();
+        
+		/** tradem 2012-04-03: Added */
+		this.typingStatus = 0;  // flag that represents the current typing status
+		this.hasTypingStatusChanged = false; // flag to prevent unnecessary requests
+
 	},
 	"createChat": function() {
 		/* the init function for creating a new chat */
+		/** tradem 2012-04-01 */
+		/** tradem 2012-04-13 Added useTypingIndicator*/
 		new Request({
-			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=createChat&pid="+this.pid+"&L="+this.lang,
+			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=createChat&pid="+this.pid+"&L="+this.lang+"&useTypingIndicator="+this.useTypingIndicator,
 			"method": "get",
 			"onComplete": function(respText) {
 				this.uid = respText;
@@ -54,11 +68,23 @@ var AjaxChat = new Class({
 					// create the unique Request Object 
 					this.request = new Request({
 						"link": "chain", // should never be chained, just to be sure..
-						"url": "index.php?eID=tx_snisupportchat_pi1&pid="+this.pid+"&chat="+this.uid,
+						"url": "index.php?eID=tx_snisupportchat_pi1&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator,
 						"onComplete": this.requestDone.bind(this)
 					});
 					// call the getMessages function periodically
 					this.timer = this.getAll.delay(this.freq,this);
+					
+					/** tradem 2012-04-11 
+					 *          Execute following functions only 
+					 *          if typing indicator has been configured. 
+					 */
+					if (this.useTypingIndicator == 1) {
+	                    /** tradem 2012-03-04: call the postTypingState function periodically */
+	                    //timer for own typing status
+	                    this.typingTimer = this.postTypingState.delay(this.freq,this);
+					}    
+	                    //timer for foreign typing status
+	                    this.observingTimer = this.getTypingState.delay(this.freq,this);	                    
 					// create the button events
 					this.addEvents();
 				}
@@ -91,8 +117,9 @@ var AjaxChat = new Class({
 			postMessages += "&chatUsername="+diffLang.chatUsername;
 		}
 		this.msgToSend.empty(); // clean the array of post messages
+		/** tradem 2012-04-13 Added useTypingIndicator*/
 		this.request.send({
-			"data": "cmd=getAll&lastRow="+this.lastRow + postMessages,
+			"data": "cmd=getAll"+"&useTypingIndicator="+this.useTypingIndicator+"&lastRow="+this.lastRow + postMessages,
 			"method": "post"
 		});	
 	},
@@ -139,6 +166,21 @@ var AjaxChat = new Class({
 			// call the get Messages function with delay
 			$clear(this.timer);
 			this.timer = this.getAll.delay(this.freq,this);
+			
+			/** tradem 2012-04-11 
+			 *          Execute following functions only 
+			 *          if typing indicator has been configured. 
+			 */
+			if (this.useTypingIndicator == 1) {
+				/** tradem 2012-03-04: Analog to getAll **/			
+				$clear(this.typingTimer);
+	            this.typingTimer = this.postTypingState.delay(this.freq,this);
+	        	
+			}    
+	            
+            $clear(this.observingTimer);
+            this.observingTimer = this.getTypingState.delay(this.freq,this);
+    					
 		}
 	},
 	str_replace: function(search, replace, subject) {
@@ -191,11 +233,63 @@ var AjaxChat = new Class({
 		$(this.options.id.textBox).addEvents({
 			"enterButtonDown": this.createMessage.bind(this)
 		});
-		$(this.options.id.closeButton).addEvent("click", this.destroyChat.bind(this));
-		window.addEvent("unload", function(e) {
+		/** tradem 2012-04-11 Register event 'isTyping' only if typing indicator has been configured. */
+		if (this.useTypingIndicator == 1) {
+			/** tradem: 2012-04-03: Register IsTyping Event */
+			$(this.options.id.textBox).addEvents({				
+			   "isTyping": this.setTypingState.bind(this)
+			});
+		}
+		$(this.options.id.closeButton).addEvent("click", function(){
+		                this.destroyChat();
+		                close_button_flag = true;
+		    }.bind(this));
+		$('exportButton').addEvent("click", function(){
+		    $('data1').value=$('snisupportchatbox').get('html');
+
+		});
+/*		window.addEvent("beforeunload", function(e) {
 			this.destroyChat(); // don t know if an AJAX Request is possible on unload 
 			e.stop();
-		}.bind(this));
+		}.bind(this));*/
+	},	
+	/** tradem 2012-04-03: Resets the Typing state */
+	"resetTypingState": function() {					                
+	     this.typingStatus = 0;
+	     this.hasTypingStatusChanged = true;
+	     this.postTypingState();
+	     $clear(this.resetTimer);
+	},
+	/** tradem 2012-04-03: Sets the Typing state, whenever a Keydown event has been fired.*/
+	"setTypingState": function() {					                
+	     this.typingStatus = 1;
+	     this.hasTypingStatusChanged = true;
+         $clear(this.resetTimer);
+         this.resetTimer = this.resetTypingState.delay(this.freq+500, this);
+	},
+	/** tradem 2012-04-03:  Posts the current typing state request.*/
+	/** tradem 2012-04-13:  Pass useTypingIndicator now */
+	"postTypingState": function() {
+		if (this.hasTypingStatusChanged) {			
+		    new Request({
+               "url": "index.php?eID=tx_snisupportchat_pi1&cmd=typingState&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator+"&isTyping=" + this.typingStatus,
+		       "method": "get",
+		       "async": "true"
+            }).send();
+            this.hasTypingStatusChanged = false;
+		}			 	           		
+	},
+	"getTypingState": function() { // tradem 2012-04-13:  Pass useTypingIndicator now
+        new Request({
+           "url": "index.php?eID=tx_snisupportchat_pi1&cmd=getTypingState&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator,
+           "method": "get",
+           "async": "true",
+           "onSuccess": function(r) {
+//        	   console.debug("AjaxChat#getTypingState: " + r);
+               if(r == 1) $('typingPen').setStyle("display", "inline");
+               else $('typingPen').setStyle("display", "none");
+           }
+        }).send();
 	},
 	"removeEvents": function() {
 		$(this.options.id.sendButton).removeEvents();
@@ -208,8 +302,9 @@ var AjaxChat = new Class({
 		// write system chat destroyed message
         this.insertMessage(diffLang.systemByeBye,"system",diffLang.system,this.strftime);
 		this.removeEvents();
+		/** tradem 2012-04-13:  Pass useTypingIndicator now */		
 		new Request({
-			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=destroyChat&chat="+this.uid+"&pid="+this.pid,
+			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=destroyChat&chat="+this.uid+"&pid="+this.pid+"&useTypingIndicator="+this.useTypingIndicator,
 			"method": "get",
 			"onComplete": function() {
 				window.close();
@@ -227,6 +322,18 @@ Element.Events.enterButtonDown = {
         }
         else {
             return (false);
+        }
+    }
+};
+/** tradem: 2012-04-03: Added IsTyping Event */
+Element.Events.isTyping = {
+    base: 'keypress', //we set a base type
+    condition: function(event){ //and a function to perform additional checks.
+        if(event.key == "enter") {
+            return (false);
+        }
+        else {
+            return (true);
         }
     }
 };

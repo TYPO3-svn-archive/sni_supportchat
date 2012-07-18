@@ -31,6 +31,10 @@ p.alert input {vertical-align: middle; }
 .chat_single_wrap a.lock_it { background: transparent url(img/unencrypted.jpg) no-repeat center center; }
 .chat_single_wrap a.unlock_it { background: transparent url(img/encrypted.jpg) no-repeat center center; }
 
+/*added for typing icon*/
+.chat_single_wrap img.typing { display:inline;float:right;border:0px;margin:3px 5px 0px 0px;}
+.chat_single_wrap img.not_typing { display:none;float:right;border:0px;margin:3px 5px 0px 0px;}
+
 .chat_single_wrap a.loading { background: transparent url(img/loading.gif) no-repeat center center; }
 .chat_single_wrap h3 p span.snillo { color: #000; }
 

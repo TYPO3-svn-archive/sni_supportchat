@@ -29,6 +29,26 @@
 		</languageKey>
 		<languageKey index="dk"></languageKey>
 		<languageKey index="de">
+            <languageKey index="default">
+			<label index="options">Optionen</label>
+			<label index="text_pieces">Vorlagen</label>
+			<label index="options_lock">Chat sperren</label>
+			<label index="options_unlock">Chat entsperren</label>
+			<label index="options_assume">Mitarbeiter</label>
+			<label index="created_at">erzeugt</label>
+			<label index="language">Sprache</label>
+			<label index="type_youre_message">Nachricht eingeben:</label>
+			<label index="status_unlocked">Der Chat ist entsperrt.</label>
+			<label index="playAlert">.. Tonsignal bei jeder Nachricht</label>		
+			<label index="system">System</label>
+			<label index="chatDestroyedMsg">Der Chat wurde beendet. Auf Wiedersehen.</label>
+			<label index="welcomeMsg">Herzlich Willommen %s!</label>
+			<label index="status_locked">Der Chat ist gesperrt. Nur Sie können ihn sehen.</label>	
+			<label index="noFixTextInThisLanguage">Keine Vorlagen für die Sprache des Nutzers!</label>
+			<label index="noBeUserOnline">Kein weiterer Mitarbeiter online!</label>
+			<label index="ok">OK</label>
+			<label index="abort">Abbruch</label>
+			<label index="assumeToTitle">Chat an Mitarbeiter weitergeben</label>
 		</languageKey>
 		<languageKey index="fr"></languageKey>
 		<languageKey index="es"></languageKey>

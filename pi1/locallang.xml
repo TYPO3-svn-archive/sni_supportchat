@@ -12,6 +12,7 @@
 			<label index="chatbox-entry-welcome">Welcome to the Support Chat!</label>
 			<label index="chatbox-messagelabel">Type your message here:</label>
 			<label index="chatbox-sendmessage">Send</label>
+			<label index="chatbox-export">Export chat as txt-file.</label>
 			<label index="chatbox-title-be-user-ok">You are now connected with the Supportler %s.</label>
 			<label index="chatbox-welcome">Welcome to the Support Chat!</label>
 			<label index="new-chatbox-message-for-be-user">A new Chatbox with Uid: %s was created!</label>
@@ -25,6 +26,7 @@
 			<label index="chat-offline-message">The chat is currently offline.</label>	
 			<label index="system-name">System</label>
 			<label index="system-chat-byebye">Thank you for chatting with us.</label>
+			<label index="system-chat-byebye-alert">The chat session was terminated!\nThank you for chatting with us.</label>
 			<label index="chatTimeout">The chat is now inactive, no message was send for a long time!</label>
 			<label index="chatDestroyedByAdmin">The chat was destroyed by an Admin. Thank you for chatting with us!</label>
 			<label index="chatNoAccess">You don't have access! If you think this is an error please contact the site administrator.</label>
@@ -32,7 +34,33 @@
 			<label index="status_msg_online">Online</label>
 		</languageKey>
 		<languageKey index="dk"></languageKey>
-		<languageKey index="de"></languageKey>
+		<languageKey index="de">
+		<label index="chat-username">Gast</label>
+			<label index="chatbox-close">Chat beenden</label>
+			<label index="chatbox-entry-welcome">Herzlich willkommen im Chat der UBL! Bitte beachten Sie, dass die Verbindung unverschlüsselt übertragen wird.</label>
+			<label index="chatbox-messagelabel">Geben Sie Ihre Nachricht hier ein:</label>
+			<label index="chatbox-sendmessage">Absenden</label>
+			<label index="chatbox-export">Chat als TXT-Datei exportieren.</label>
+			<label index="chatbox-title-be-user-ok">Sie sind jetzt verbunden mit UB Mitarbeiter %s.</label>
+			<label index="chatbox-welcome">Herzlich Willkommen im Chat der UBL!</label>
+			<label index="new-chatbox-message-for-be-user">Eine neue Chatbox (uid: %s) wurde erzeugt!</label>
+			<label index="noJsOrCookies-text">Der Chat erfordert Javascript und Cookies!</label>
+			<label index="noJsOrCookies-title">Fehler</label>
+			<label index="support-logo-header">UBL Chat</label>
+            <label index="system-chat-destroyed">Entschuldigung, der Chat wurde deaktiviert!</label>
+            <label index="system-supportler-joined-chat">Mitarbeiter %s hat den Chat betreten.</label>
+            <label index="system-supportler-leaved-chat">Mitarbeiter %s hat den Chat verlassen.</label>
+			<label index="chat-offline-title">Entschuldigung.</label>
+			<label index="chat-offline-message">Der Chat ist derzeit offline.</label>	
+			<label index="system-name">System</label>
+			<label index="system-chat-byebye">Vielen Dank, dass Sie unseren Chat benutzt haben.</label>
+			<label index="system-chat-byebye-alert">Der Chat wurde beendet!\nVielen Dank, dass Sie unseren Chat benutzt haben.</label>
+			<label index="chatTimeout">Der Chat wurde wegen Inaktivität beendet.</label>
+			<label index="chatDestroyedByAdmin">Der Chat wurde geschlossen. Vielen Dank, dass Sie unseren Chat benutzt haben!</label>
+			<label index="chatNoAccess">Sie haben keinen Zugriff.</label>
+			<label index="status_msg_offline">Offline</label>
+			<label index="status_msg_online">Online</label>
+		</languageKey>
 		<languageKey index="no"></languageKey>
 		<languageKey index="it" type="array">
             <label index="chat-username">Lei</label>
@@ -40,6 +68,7 @@
             <label index="chatbox-entry-welcome">Un ns. collaboratore Le risponderà quanto prima. La preghiamo di attendere.</label>
             <label index="chatbox-messagelabel">Testo:</label>
             <label index="chatbox-sendmessage">Invia</label>
+            <label index="chatbox-export">Esportare la chiacchierata come file txt.</label>
             <label index="chatbox-title-be-user-ok">Lei é collegato con il consulente %s.</label>
             <label index="chatbox-welcome">Benvenuto alla consulenza e all' assistenza tecnica.</label>
             <label index="new-chatbox-message-for-be-user">Un nuovo utente si é collegat con Uid: %s</label>
@@ -53,6 +82,7 @@
             <label index="chat-offline-message">Il Chat é temporaneamente offline.</label>
             <label index="system-name">Systema</label>
             <label index="system-chat-byebye">Grazie per averci contattato</label>
+            <label index="system-chat-byebye-alert">Grazie per averci contattato</label>
             <label index="chatTimeout">La sessione é stata terminata a causa di un timeout!</label>
             <label index="chatDestroyedByAdmin">La ringraziamo per il contatto. La sessione é terminata.</label>
             <label index="chatNoAccess">Lei non ha accesso!</label>

@@ -9,6 +9,9 @@ class chat extends tx_chat_functions {
 	var $pid=0; // the pid for the chat, and Messages
 	var $lastRow=0; // uid of the last row. The getMessage function will only get Messages with an uid greater than this var!
 	
+	/** tradem 2012-04-11 Added to control typing indiator */
+	var $useTypingIndicator=0; // controls if typing indicator should show up or not, defaults to false (0)
+	
 	var $logging=1; // insert Log Messages in DB
 
 	// Array for the Chat in DB
@@ -17,11 +20,17 @@ class chat extends tx_chat_functions {
 
 	/**
 	* Just iniatialize some basic data needed for every chat object!
+	* 
+	* tradem 2012-04-11 Added $useTypingIndicator parameter
 	*/
-	function initChat($pid,$ident,$admin=0) {
+	function initChat($pid,$ident,$admin=0,$useTypingIndicator=0) {
 		$this->pid = intval($pid);
 		$this->identification = $ident; // FE-User session id, or BE-User uid
 		$this->admin = $admin; // only for BE-USERS
+		/** tradem 2012-04-11 Assign $useTypingIndicator parameter */
+		$this->useTypingIndicator = $useTypingIndicator;
+		/** tradem 2012-04-13 Added log for more debug information */
+		/** $this->writeLog("initChat: state of useTypingIndicator=[" . $this->useTypingIndicator . "]"); */				 				
 	}
 
 	/**
@@ -121,6 +130,7 @@ class chat extends tx_chat_functions {
 
         if($this->logging) {
             $this->writeLog("Chat ".$chatUid." was succesfully created!");
+            $this->logTypingStatus($chatUid);            
         }
 		return ($chatUid);		
 	}
@@ -313,6 +323,117 @@ class chat extends tx_chat_functions {
             }
         }
     }
+	
+    /**
+     * Save info to database if user is currently typing if usage of typing indicator is set.
+     * Behavoir of this method is controlled by state of <code>useTypingIndicator</code>.
+     * 
+     * @param Boolean: true if current end is typing, false if it's not 
+     * @return Boolean: true or false if useTypingIndicator is not set to true (1).
+     * @see #useTypingIndicator 
+     * @see #initChat($pid,$ident,$admin=0,$useTypingIndicator)  
+     */
+    function saveTypingStatus($isTyping) {
+        global $TYPO3_DB,$BE_USER;
+        
+        /** tradem 2012-04-11 Added check of control variable. */
+        if ($this->useTypingIndicator == 1) {
+//         	$this->writeLog("saveTypingStatus: this->useTypingIndicator=[" . $this->useTypingIndicator . "]");
+        	
+        	$tableChats = "tx_snisupportchat_chats";
+        	//how many chats does this query select? - how can only the current chat be selected?
+        	//$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('uid,status',$tableChats,'active=1 AND deleted=0 AND hidden=0 AND pid='.$this->pid.' AND uid='.$this->uid);
+        	$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('status',$tableChats,'uid='.$this->uid);
+        	
+        	//while ($row=$GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
+        	if($GLOBALS["TYPO3_DB"]->sql_num_rows($res) == 1) {
+        	$row=$GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res);
+        		$status_array = unserialize($row['status']);
+        		if(! is_array($status_array)) {
+        		$status_array = array ('feu_typing'=>0, 'beu_typing'=>0);
+        	}
+        	
+        	if($BE_USER->user["uid"]) {
+        			//current user is a backend-user and typing?
+        			if($isTyping == 1) {
+        			$status_array['beu_typing'] = 1;
+        	} else {
+        	$status_array['beu_typing'] = 0;
+        			}
+        	
+        			} else {
+        	//current user is a frontend-user and typing?
+        		if($isTyping == 1) {
+        		$status_array['feu_typing'] = 1;
+        	} else {
+        		$status_array['feu_typing'] = 0;
+        	}
+        	
+        	}
+        		//$GLOBALS["TYPO3_DB"]->exec_UPDATEquery($tableChats,"uid=".$row["uid"],array("status" => (strlen(serialize($status_array)) <= 255 ? serialize($status_array) : '' )));
+        			$GLOBALS["TYPO3_DB"]->exec_UPDATEquery($tableChats,"uid=".$this->uid,array("status" => (strlen(serialize($status_array)) <= 255 ? serialize($status_array) : '' )));
+        	
+        		}        	
+        	return true;        		 
+        } else {
+        	return false;
+        }
+        
+   }
+
+   
+    /**
+     * Retrieve typing status of opposite chat-partner.
+     * Behavoir of this method is controlled by state of <code>useTypingIndicator</code>.
+     * 
+     * @param none
+     * @return Boolean: true if other end is typing, false if it's not  or if useTypingIndicator is not set to true (1).
+     * @see #useTypingIndicator 
+     * @see #initChat($pid,$ident,$admin=0,$useTypingIndicator)  
+     */
+    function getTypingStatus() {
+        global $TYPO3_DB,$BE_USER;
+
+        /** tradem 2012-04-11 Added check of control variable. */
+        if ($this->useTypingIndicator == 1) {
+        	// $this->writeLog("getTypingStatus: this->useTypingIndicator=[" . $this->useTypingIndicator . "]");        	 
+        	$tableChats = "tx_snisupportchat_chats";
+        	//how many chats does this query select? - how can only the current chat be selected?
+        	$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('uid,status',$tableChats,'active=1 AND deleted=0 AND hidden=0 AND pid='.$this->pid.' AND uid='.$this->uid);
+        	while ($row=$GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
+        	$status_array = unserialize($row['status']);
+        	if(! is_array($status_array)) {
+        	$status_array = array ('feu_typing'=>0, 'beu_typing'=>0);
+        	}
+        	if($BE_USER->user["uid"]) {
+        			//current user is a backend-user and frontend-user is typing?
+        			if($status_array['feu_typing'] == 1) return 1;
+        		else return 0;
+        	} else {
+        	//current user is frontend-user and backend-user is typing?
+        		if($status_array['beu_typing'] == 1) return 1;
+        	else return 0;
+        	}
+        	
+        	}        		 
+        }
+                
+        return false;        
+        
+    }
+    
+    /**
+     * Creates a log entry if typing status indicator has been deactivated.
+     * 
+     * @author tradem
+     * @since 2012-04-11 
+     */
+    function logTypingStatus($chatId) {
+    	if ($this->useTypingIndicator != 1) {
+    		$this->writeLog("Warning. Chat ".$chatId." has been configured without typing indicator!");
+    	}    	 
+    }
+    
 	
 }
 ?>

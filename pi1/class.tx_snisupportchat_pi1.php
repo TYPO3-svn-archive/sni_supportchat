@@ -149,13 +149,13 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 				if($this->conf["usePrototype"]) {
 					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline.js').'"></script>';
 					$onLoad = '
-						Event.observe(window, "load", function() { initOnlineCheck("'.$this->getEidUrl().'"); });
+						Event.observe(window, "load", function() { initOnlineCheck("'.$this->getAbsUrl('index.php?eID=tx_snisupportchat_pi1').'"); });
 					';
 				}
 				else {
 					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline_Mootools.js').'"></script>';
 					$onLoad = '
-						window.addEvent("domready",function() { initOnlineCheck("'.$this->getEidUrl().'"); });
+						window.addEvent("domready",function() { initOnlineCheck("'.$this->getAbsUrl('index.php?eID=tx_snisupportchat_pi1').'"); });
 					';
 				}
 			}	
@@ -221,7 +221,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 					\'chatNoAccess\': \''.addslashes($this->pi_getLL("chatNoAccess")).'\'
 				};
 				window.addEvent("domready", function() {
-					initChat("'.$this->getEidUrl().'");
+					initChat("'.$this->getAbsUrl('index.php?eID=tx_snisupportchat_pi1').'");
 				}); 
 				window.onbeforeunload = function() {
 					chat.destroyChat();
@@ -268,7 +268,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
             "additionalParams" => "&tx_snisupportchat_pi1[cmd]=openChat",
             "returnLast" => "url"
         );
-        $openChatLink = $this->cObj->typolink("",$linkConf);
+        $openChatLink = $this->getAbsUrl($this->cObj->typolink("",$linkConf));        
 		$markerArray = Array(
 			"###TITLE###" => $this->pi_getLL("support-logo-header"),
 			"###IMAGE###" => '<a href="'.$this->pi_getPageLink($this->conf["chatNotSupportedPage"]).'" onclick="sniSupportchatOpenWindow(\''.$openChatLink.'\',\'snisupportchatwindow\',\''.$this->conf["chatWindowJsParams"].'\'); return false;" target="_blank">'.$image.'</a>',
@@ -338,22 +338,24 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 	}
 
     /*
-     * Get the correct path to eID
-     * @return string path to eid
+     * Try to get absolute URL to link
+     * @return string absolute URL
      */
-    function getEidUrl() {
+    function getAbsUrl($link) {
         $isAbsRelPrefix = !empty($GLOBALS['TSFE']->absRefPrefix);
         $isBaseURL  = !empty($GLOBALS['TSFE']->baseUrl);
-        if(!$isBaseURL && $isAbsRelPrefix) {
-            $url = $GLOBALS['TSFE']->absRefPrefix.'index.php?eID=tx_snisupportchat_pi1';
+        if($isBaseURL) {
+            $url = $GLOBALS['TSFE']->baseUrlWrap($link);
+        }
+        else if ($isAbsRelPrefix) {
+            $url = t3lib_div::locationHeaderUrl($link);
         }
         else {
-            $url = 'index.php?eID=tx_snisupportchat_pi1';
+            $url = $link;
         }        
         return $url;
     }
 }
-
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/sni_supportchat/pi1/class.tx_snisupportchat_pi1.php'])	{

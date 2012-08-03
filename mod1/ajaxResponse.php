@@ -8,7 +8,7 @@ class tx_snisupportchat_ajax {
 	var $logging = 1; // display log messages
 	var $lastLogRow = 0; // the last row uid of log messages
 	/** tradem 2012-04-11 Added to control typing indiator */
-	var $useTypingIndicator = 0; // controls if typing indicator should show up or not, defaults to true (0)
+	var $useTypingIndicator = 1; // controls if typing indicator should show up or not, defaults to true (1)
 			
 	function init() {
 		global $BE_USER,$TYPO3_DB;		
@@ -29,7 +29,6 @@ class tx_snisupportchat_ajax {
 		}
 		$this->uid = intval(t3lib_div::_GP("chatUid")) ? intval(t3lib_div::_GP("chatUid")) : 0;
 		$chatMarket = new chatMarket($this->logging,$this->lastLogRow);
-// 		$chatMarket->writeLog("Backend ajaxResponse.php: useTypingIndicator=[" .$this->useTypingIndicator. "]");
 		$chatMarket->initChat($this->chatsPid,$BE_USER->user["uid"],1,$this->useTypingIndicator);		
 		switch($this->cmd) {
 			case 'doAll':
@@ -39,10 +38,6 @@ class tx_snisupportchat_ajax {
 				$destroyChats = t3lib_div::_GP("destroyChat");
 				/*added for typingStatus*/
 				$typingStatus = t3lib_div::_GP("typingStatus");
-				// tradem 2011-04-12 Log typing status				
-// 				for ($i = 0; $i < count($typingStatus); $i++) {
-// 					$chatMarket->writeLog("ajaxResponse: typingStatus=[" .$typingStatus[$i] . "]");
-// 				}
 				$xmlArray = Array(
 					"fromDoAll" => Array(
 						"time" => $chatMarket->renderTstamp(time()),
@@ -70,6 +65,7 @@ class tx_snisupportchat_ajax {
 				"time" => tx_chat_functions::renderTstamp(time()),
 			)
 		);
+        return ($xmlArray);
 	}
 
 }

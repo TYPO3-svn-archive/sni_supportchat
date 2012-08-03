@@ -65,7 +65,7 @@ class chatMarket extends chat {
 					}	
 				}
 				/*added for typingStatus*/
-				$tmp_status = unserialize($row['status']);
+				$tmp_status = unserialize($this->db['status']);
 				$tmp_status = $tmp_status['feu_typing'];
 				
 				$retArray[$i]["chatIndex"]["uid"] = $this->uid;
@@ -78,7 +78,7 @@ class chatMarket extends chat {
 				$retArray[$i]["chatIndex"]["language_label"] = $language[$this->db["language_uid"]]["label"];
 				$retArray[$i]["chatIndex"]["messages"] = $messages;
 				/*added for typingStatus*/
-				$retArray[$i]["chatIndex"]["status"] = ($tmp_status==1?1:0);
+				$retArray[$i]["chatIndex"]["status"] = ($tmp_status == 1 ? 1 : 0);
                 // lock chat ?
                 if(isset($lockChats[$this->uid])) {
                     $this->lockChat(intval($lockChats[$this->uid]));

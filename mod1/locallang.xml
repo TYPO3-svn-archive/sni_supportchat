@@ -29,7 +29,6 @@
 		</languageKey>
 		<languageKey index="dk"></languageKey>
 		<languageKey index="de">
-            <languageKey index="default">
 			<label index="options">Optionen</label>
 			<label index="text_pieces">Vorlagen</label>
 			<label index="options_lock">Chat sperren</label>

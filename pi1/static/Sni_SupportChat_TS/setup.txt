@@ -2,7 +2,7 @@ plugin.tx_snisupportchat_pi1 {
 	templateFile = EXT:sni_supportchat/pi1/template.tmpl
 	addPrototype = 1
 	usePrototype = 1
-	useTypingIndicator = 0
+	useTypingIndicator = 1
 	checkIfChatIsOnline = 30
 	# "this" or list uf uids for Chat FE-Plugin Pages to check if respective chats are online or offline
 	# if this value is empty then no Online/Offline check is made in FE

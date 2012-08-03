@@ -68,7 +68,7 @@
             <label index="chatbox-entry-welcome">Un ns. collaboratore Le risponderà quanto prima. La preghiamo di attendere.</label>
             <label index="chatbox-messagelabel">Testo:</label>
             <label index="chatbox-sendmessage">Invia</label>
-            <label index="chatbox-export">Esportare la chiacchierata come file txt.</label>
+            <label index="chatbox-export">Salvare la chat come file txt.</label>
             <label index="chatbox-title-be-user-ok">Lei é collegato con il consulente %s.</label>
             <label index="chatbox-welcome">Benvenuto alla consulenza e all' assistenza tecnica.</label>
             <label index="new-chatbox-message-for-be-user">Un nuovo utente si é collegat con Uid: %s</label>

@@ -334,51 +334,45 @@ class chat extends tx_chat_functions {
      * @see #initChat($pid,$ident,$admin=0,$useTypingIndicator)  
      */
     function saveTypingStatus($isTyping) {
-        global $TYPO3_DB,$BE_USER;
+        global $BE_USER;
         
         /** tradem 2012-04-11 Added check of control variable. */
         if ($this->useTypingIndicator == 1) {
-//         	$this->writeLog("saveTypingStatus: this->useTypingIndicator=[" . $this->useTypingIndicator . "]");
-        	
-        	$tableChats = "tx_snisupportchat_chats";
-        	//how many chats does this query select? - how can only the current chat be selected?
-        	//$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('uid,status',$tableChats,'active=1 AND deleted=0 AND hidden=0 AND pid='.$this->pid.' AND uid='.$this->uid);
-        	$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('status',$tableChats,'uid='.$this->uid);
-        	
-        	//while ($row=$GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
-        	if($GLOBALS["TYPO3_DB"]->sql_num_rows($res) == 1) {
-        	$row=$GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res);
-        		$status_array = unserialize($row['status']);
-        		if(! is_array($status_array)) {
-        		$status_array = array ('feu_typing'=>0, 'beu_typing'=>0);
-        	}
-        	
-        	if($BE_USER->user["uid"]) {
-        			//current user is a backend-user and typing?
-        			if($isTyping == 1) {
-        			$status_array['beu_typing'] = 1;
-        	} else {
-        	$status_array['beu_typing'] = 0;
-        			}
-        	
-        			} else {
-        	//current user is a frontend-user and typing?
-        		if($isTyping == 1) {
-        		$status_array['feu_typing'] = 1;
-        	} else {
-        		$status_array['feu_typing'] = 0;
-        	}
-        	
-        	}
-        		//$GLOBALS["TYPO3_DB"]->exec_UPDATEquery($tableChats,"uid=".$row["uid"],array("status" => (strlen(serialize($status_array)) <= 255 ? serialize($status_array) : '' )));
-        			$GLOBALS["TYPO3_DB"]->exec_UPDATEquery($tableChats,"uid=".$this->uid,array("status" => (strlen(serialize($status_array)) <= 255 ? serialize($status_array) : '' )));
-        	
-        		}        	
+//         	$this->writeLog("saveTypingStatus: this->useTypingIndicator=[" . $this->useTypingIndicator . "]");        	
+        	if($this->db['uid']) {                
+        		$status_array = unserialize($this->db['status']);
+        		if(!is_array($status_array)) {
+             		$status_array = array ('feu_typing'=>0, 'beu_typing'=>0);
+            	}        	
+                if($BE_USER->user["uid"]) {
+                    //current user is a backend-user and typing?
+                    if($isTyping == 1) {
+                        $status_array['beu_typing'] = 1;
+                    } 
+                    else {
+                        $status_array['beu_typing'] = 0;
+        			}        	
+       			}
+                else {
+                    //current user is a frontend-user and typing?
+                    if($isTyping == 1) {
+                        $status_array['feu_typing'] = 1;
+                    }
+                    else {
+                        $status_array['feu_typing'] = 0;
+                	}        	
+                }
+                $updateArray = Array('status' => serialize($status_array));
+                if($this->db['status'] != $updateArray['status']) {
+                    $tableChats = "tx_snisupportchat_chats";        	
+            		$GLOBALS["TYPO3_DB"]->exec_UPDATEquery($tableChats,"uid=".$this->uid,$updateArray);        	
+                }    
+       		}        	
         	return true;        		 
-        } else {
-        	return false;
         }
-        
+        else {
+        	return false;
+        }        
    }
 
    
@@ -392,34 +386,37 @@ class chat extends tx_chat_functions {
      * @see #initChat($pid,$ident,$admin=0,$useTypingIndicator)  
      */
     function getTypingStatus() {
-        global $TYPO3_DB,$BE_USER;
+        global $BE_USER;
 
         /** tradem 2012-04-11 Added check of control variable. */
         if ($this->useTypingIndicator == 1) {
         	// $this->writeLog("getTypingStatus: this->useTypingIndicator=[" . $this->useTypingIndicator . "]");        	 
-        	$tableChats = "tx_snisupportchat_chats";
-        	//how many chats does this query select? - how can only the current chat be selected?
-        	$res = $GLOBALS["TYPO3_DB"]->exec_SELECTquery('uid,status',$tableChats,'active=1 AND deleted=0 AND hidden=0 AND pid='.$this->pid.' AND uid='.$this->uid);
-        	while ($row=$GLOBALS["TYPO3_DB"]->sql_fetch_assoc($res)) {
-        	$status_array = unserialize($row['status']);
-        	if(! is_array($status_array)) {
-        	$status_array = array ('feu_typing'=>0, 'beu_typing'=>0);
-        	}
-        	if($BE_USER->user["uid"]) {
-        			//current user is a backend-user and frontend-user is typing?
-        			if($status_array['feu_typing'] == 1) return 1;
-        		else return 0;
-        	} else {
-        	//current user is frontend-user and backend-user is typing?
-        		if($status_array['beu_typing'] == 1) return 1;
-        	else return 0;
-        	}
-        	
+        	if($this->db['uid'] && $this->db['active']) {
+                $status_array = unserialize($this->db['status']);
+                if(!is_array($status_array)) {
+                   $status_array = array ('feu_typing'=>0, 'beu_typing'=>0);
+                }
+                if($BE_USER->user["uid"]) {
+                        //current user is a backend-user and frontend-user is typing?
+                        if($status_array['feu_typing'] == 1) {
+                            return 1;
+                        }                        
+                        else {
+                            return 0;
+                        }    
+                } 
+                else {
+                //current user is frontend-user and backend-user is typing?
+                    if($status_array['beu_typing'] == 1) {
+                        return 1;
+                    }    
+                    else {
+                        return 0;
+                    }    
+                }
         	}        		 
-        }
-                
-        return false;        
-        
+        }                
+        return false;                
     }
     
     /**
@@ -430,7 +427,7 @@ class chat extends tx_chat_functions {
      */
     function logTypingStatus($chatId) {
     	if ($this->useTypingIndicator != 1) {
-    		$this->writeLog("Warning. Chat ".$chatId." has been configured without typing indicator!");
+    		$this->writeLog("Info: Chat ".$chatId." has been configured without typing indicator!");
     	}    	 
     }
     

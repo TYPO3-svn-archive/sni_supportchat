@@ -59,6 +59,7 @@ class ajaxResponse {
                     $msgArray = $chat->getMessages($fields);
                     // store new messages in DB
                     $msgToSend = t3lib_div::_POST("msgToSend");
+                    $chat->saveTypingStatus(t3lib_div::_GP("isTyping"));
                     if($msgToSend) {
                         $userName = htmlspecialchars(t3lib_div::_POST("chatUsername"));
                         for($i=0; $i<sizeOf($msgToSend); $i++) {
@@ -68,7 +69,8 @@ class ajaxResponse {
 					$xmlArray = Array(
 						"time" => $chat->renderTstamp(time()),
 						"lastRow" => $chat->lastRow,
-						"messages" => $msgArray 
+						"messages" => $msgArray,
+                        "status" => $chat->getTypingStatus()
 					);
 				}
                 else {
@@ -80,16 +82,7 @@ class ajaxResponse {
                 }
                 $xml = $chat->convert2xml($xmlArray);
                 $chat->printResponse($xml);
-			break;
-            
-		    case "typingState":                          
-                 // store state in DB
-                $chat->saveTypingStatus(t3lib_div::_GET("isTyping"));
-            break;
-            case "getTypingState":                          
-                 // store state in DB
-                print $chat->getTypingStatus();
-            break;
+			break;            
 		    case "createChatLog":
 		        $this->data = is_string(t3lib_div::_POST("data")) ? t3lib_div::_POST("data") : NULL;
 		        if(isset($this->data) && is_string($this->data)) {
@@ -101,7 +94,7 @@ class ajaxResponse {
                     header('Content-Type: text/plain');
                     header('Content-Disposition: attachment; filename="ChatLog'.time().'.txt"');
                     print $intro . $this->data;
-		}
+                }
 		    break;
 		}
 	}

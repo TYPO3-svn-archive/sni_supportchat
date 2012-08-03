@@ -194,8 +194,8 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 		$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '
 			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4-core-yc.js"></script>
             <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4.2-more.js"></script>
-            <script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/smilies.js"></script>
-			<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/sni_supportchat.js"></script>		
+            <script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename(t3lib_extMgm::siteRelPath('sni_supportchat').'js/smilies.js').'"></script>
+			<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename(t3lib_extMgm::siteRelPath('sni_supportchat').'js/sni_supportchat.js').'"></script>		
 			<script type="text/javascript">
 			/*<![CDATA[*/
 			<!--
@@ -333,7 +333,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 	 * @return true (1) or false (0)  
 	 */
 	function loadUsingTypingIndicator() {		         
-		return ($this->conf["useTypingIndicator"]) ? $this->conf["useTypingIndicator"] : 0;	
+		return ($this->conf["useTypingIndicator"] ? 1 : 0);	
 	}
 }
 

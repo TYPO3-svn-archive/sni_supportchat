@@ -49,8 +49,6 @@ var AjaxChat = new Class({
         
 		/** tradem 2012-04-03: Added */
 		this.typingStatus = 0;  // flag that represents the current typing status
-		this.hasTypingStatusChanged = false; // flag to prevent unnecessary requests
-
 	},
 	"createChat": function() {
 		/* the init function for creating a new chat */
@@ -73,18 +71,6 @@ var AjaxChat = new Class({
 					});
 					// call the getMessages function periodically
 					this.timer = this.getAll.delay(this.freq,this);
-					
-					/** tradem 2012-04-11 
-					 *          Execute following functions only 
-					 *          if typing indicator has been configured. 
-					 */
-					if (this.useTypingIndicator == 1) {
-	                    /** tradem 2012-03-04: call the postTypingState function periodically */
-	                    //timer for own typing status
-	                    this.typingTimer = this.postTypingState.delay(this.freq,this);
-					}    
-	                    //timer for foreign typing status
-	                    this.observingTimer = this.getTypingState.delay(this.freq,this);	                    
 					// create the button events
 					this.addEvents();
 				}
@@ -119,7 +105,7 @@ var AjaxChat = new Class({
 		this.msgToSend.empty(); // clean the array of post messages
 		/** tradem 2012-04-13 Added useTypingIndicator*/
 		this.request.send({
-			"data": "cmd=getAll"+"&useTypingIndicator="+this.useTypingIndicator+"&lastRow="+this.lastRow + postMessages,
+			"data": "cmd=getAll"+"&useTypingIndicator="+this.useTypingIndicator+"&lastRow="+this.lastRow + postMessages + "&isTyping=" + this.typingStatus,
 			"method": "post"
 		});	
 	},
@@ -147,6 +133,15 @@ var AjaxChat = new Class({
 				}
 				else {
 					this.lastRow = root[0].childNodes[1].firstChild.nodeValue; // update last Row
+                    if (this.useTypingIndicator == 1) {                    
+                        var status = root[0].childNodes[3].firstChild.nodeValue; // get Status (is Typing ecc.)
+                        if(status == 1) {
+                            $('typingPen').setStyle("display", "inline");                            
+                        }
+                        else {
+                            $('typingPen').setStyle("display", "none");                        
+                        }
+                    }    
 					if(root[0].childNodes[2]) {
 						var messages = root[0].childNodes[2].getElementsByTagName("numIndex");
 						if(messages.length>0) {
@@ -166,21 +161,6 @@ var AjaxChat = new Class({
 			// call the get Messages function with delay
 			$clear(this.timer);
 			this.timer = this.getAll.delay(this.freq,this);
-			
-			/** tradem 2012-04-11 
-			 *          Execute following functions only 
-			 *          if typing indicator has been configured. 
-			 */
-			if (this.useTypingIndicator == 1) {
-				/** tradem 2012-03-04: Analog to getAll **/			
-				$clear(this.typingTimer);
-	            this.typingTimer = this.postTypingState.delay(this.freq,this);
-	        	
-			}    
-	            
-            $clear(this.observingTimer);
-            this.observingTimer = this.getTypingState.delay(this.freq,this);
-    					
 		}
 	},
 	str_replace: function(search, replace, subject) {
@@ -241,55 +221,23 @@ var AjaxChat = new Class({
 			});
 		}
 		$(this.options.id.closeButton).addEvent("click", function(){
-		                this.destroyChat();
-		                close_button_flag = true;
-		    }.bind(this));
+            this.destroyChat();
+	        close_button_flag = true;
+        }.bind(this));
 		$('exportButton').addEvent("click", function(){
 		    $('data1').value=$('snisupportchatbox').get('html');
-
 		});
-/*		window.addEvent("beforeunload", function(e) {
-			this.destroyChat(); // don t know if an AJAX Request is possible on unload 
-			e.stop();
-		}.bind(this));*/
 	},	
 	/** tradem 2012-04-03: Resets the Typing state */
 	"resetTypingState": function() {					                
+	     $clear(this.resetTimer);        
 	     this.typingStatus = 0;
-	     this.hasTypingStatusChanged = true;
-	     this.postTypingState();
-	     $clear(this.resetTimer);
 	},
 	/** tradem 2012-04-03: Sets the Typing state, whenever a Keydown event has been fired.*/
 	"setTypingState": function() {					                
+         $clear(this.resetTimer);        
 	     this.typingStatus = 1;
-	     this.hasTypingStatusChanged = true;
-         $clear(this.resetTimer);
          this.resetTimer = this.resetTypingState.delay(this.freq+500, this);
-	},
-	/** tradem 2012-04-03:  Posts the current typing state request.*/
-	/** tradem 2012-04-13:  Pass useTypingIndicator now */
-	"postTypingState": function() {
-		if (this.hasTypingStatusChanged) {			
-		    new Request({
-               "url": "index.php?eID=tx_snisupportchat_pi1&cmd=typingState&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator+"&isTyping=" + this.typingStatus,
-		       "method": "get",
-		       "async": "true"
-            }).send();
-            this.hasTypingStatusChanged = false;
-		}			 	           		
-	},
-	"getTypingState": function() { // tradem 2012-04-13:  Pass useTypingIndicator now
-        new Request({
-           "url": "index.php?eID=tx_snisupportchat_pi1&cmd=getTypingState&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator,
-           "method": "get",
-           "async": "true",
-           "onSuccess": function(r) {
-//        	   console.debug("AjaxChat#getTypingState: " + r);
-               if(r == 1) $('typingPen').setStyle("display", "inline");
-               else $('typingPen').setStyle("display", "none");
-           }
-        }).send();
 	},
 	"removeEvents": function() {
 		$(this.options.id.sendButton).removeEvents();

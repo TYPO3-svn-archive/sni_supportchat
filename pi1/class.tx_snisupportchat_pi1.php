@@ -126,6 +126,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 			"###CLOSE_LABEL###" => $this->pi_getLL("chatbox-close"),
 			"###ERROR###" => $this->pi_getLL("noJsOrCookies-text"), 
 			"###EXPORT_TEXT###" => $this->pi_getLL("chatbox-export"),
+            "###EXPORT_ACTION_URL###" => $this->getAbsUrl('index.php?eID=tx_snisupportchat_pi1&cmd=createChatLog')
 		);
 		$content = $this->cObj->substituteMarkerArrayCached($out,$markerArray);		
 		return($content);

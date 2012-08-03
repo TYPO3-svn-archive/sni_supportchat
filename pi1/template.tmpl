@@ -20,10 +20,10 @@
 			</div>
 			<div class="bottom-cont">
 			    <!-- icon from: http://schollidesign.deviantart.com/gallery/#/d1qpw1n -->
-			    <form action="index.php?eID=tx_snisupportchat_pi1&cmd=createChatLog" method="post" target="my_iframe" id="exportForm">
+			    <form action="###EXPORT_ACTION_URL###" method="post" target="my_iframe" id="exportForm">
                     <input type="image" src="typo3conf/ext/sni_supportchat/pics/save.png" id="exportButton" style="float:right;border:0px;" title="###EXPORT_TEXT###"/><input type="hidden" name="data" value="" id="data1" />
                 </form>
-                <iframe name="my_iframe" src="not_submitted_yet.aspx" style="display:none"></iframe>
+                <iframe name="my_iframe" src="about:blank" style="display:none"></iframe>
                 <!-- icon from GNOME Empathy 3.4 iconset: http://ftp.acc.umu.se/pub/GNOME/sources/empathy/3.4/ -->
 			    <img src="typo3conf/ext/sni_supportchat/pics/typing.png" id="typingPen" style="display:none;float:right;border:0px;margin-right:5px;" />
 				<p class="sni-message-label">###MESSAGE_LABEL###</p>

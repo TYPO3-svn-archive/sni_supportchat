@@ -1,19 +1,19 @@
 /**** check if the supportChat is online ****/
 
-function initOnlineCheck() {
+function initOnlineCheck(url) {
 	if(checkPids) {
-		var theChecker = new checker(checkPids,globFreq);
+		var theChecker = new checker(checkPids,globFreq,url);
 	}	
 }
 
 var checker = new Class({
-	"initialize": function(checkPids,frequency) {
+	"initialize": function(checkPids,frequency,url) {
 		// checkPids is a comma separetet list of page-uids
 		this.pids = checkPids;
 		this.frequency = frequency*1000;
 		this.timer = null; 
 		this.request = new Request({
-			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+this.pids,
+			"url": url+"&cmd=checkIfOnline&chatPids="+this.pids,
 			"method": "get",
 			"link": "cancel",
 			"onComplete": this.checkItDone.bind(this)

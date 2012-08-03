@@ -1,8 +1,8 @@
 /**** the support chat ****/
 				
-function initChat() {
+function initChat(eidUrl) {
 	checkJs();
-	initAjaxChat(); 
+	initAjaxChat(eidUrl); 
 }
 
 function checkJs() {
@@ -10,10 +10,10 @@ function checkJs() {
 	$("chatboxouter").setStyle("display","block");
 }
 
-function initAjaxChat() {
+function initAjaxChat(eidUrl) {
 	//define chat globally so that chatDestroy() can be performed without moocode
 	/** tradem Pass useTypingIndicator as constructor parameter */
-	chat = new AjaxChat(globPid,globLang,globFreqMessages,timeFormated,useTypingIndicator);
+	chat = new AjaxChat(globPid,globLang,globFreqMessages,timeFormated,useTypingIndicator,{"eidUrl": eidUrl});
 	chat.createChat();
 }
 
@@ -55,7 +55,7 @@ var AjaxChat = new Class({
 		/** tradem 2012-04-01 */
 		/** tradem 2012-04-13 Added useTypingIndicator*/
 		new Request({
-			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=createChat&pid="+this.pid+"&L="+this.lang+"&useTypingIndicator="+this.useTypingIndicator,
+			"url": this.options.eidUrl+"&cmd=createChat&pid="+this.pid+"&L="+this.lang+"&useTypingIndicator="+this.useTypingIndicator,
 			"method": "get",
 			"onComplete": function(respText) {
 				this.uid = respText;
@@ -66,7 +66,7 @@ var AjaxChat = new Class({
 					// create the unique Request Object 
 					this.request = new Request({
 						"link": "chain", // should never be chained, just to be sure..
-						"url": "index.php?eID=tx_snisupportchat_pi1&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator,
+						"url": this.options.eidUrl+"&pid="+this.pid+"&chat="+this.uid+"&useTypingIndicator="+this.useTypingIndicator,
 						"onComplete": this.requestDone.bind(this)
 					});
 					// call the getMessages function periodically
@@ -252,7 +252,7 @@ var AjaxChat = new Class({
 		this.removeEvents();
 		/** tradem 2012-04-13:  Pass useTypingIndicator now */		
 		new Request({
-			"url": "index.php?eID=tx_snisupportchat_pi1&cmd=destroyChat&chat="+this.uid+"&pid="+this.pid+"&useTypingIndicator="+this.useTypingIndicator,
+			"url": this.options.eidUrl+"&cmd=destroyChat&chat="+this.uid+"&pid="+this.pid+"&useTypingIndicator="+this.useTypingIndicator,
 			"method": "get",
 			"onComplete": function() {
 				window.close();

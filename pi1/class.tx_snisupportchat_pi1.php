@@ -144,17 +144,18 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 				$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] = '<script type="text/javascript" src="'.t3lib_extMgm::siteRelPath('sni_supportchat').'js/mootools-1.2.4-core-yc.js"></script>';
 			}
 			$jsCheckPids = $this->checkForOnlineOfflinePages();
+            
 			if($jsCheckPids) {
 				if($this->conf["usePrototype"]) {
-					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline.js"></script>';
+					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline.js').'"></script>';
 					$onLoad = '
-						Event.observe(window, "load", initOnlineCheck);
+						Event.observe(window, "load", function() { initOnlineCheck("'.$this->getEidUrl().'"); });
 					';
 				}
 				else {
-					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline_Mootools.js"></script>';
+					$GLOBALS['TSFE']->additionalHeaderData['tx_snisupportchat_pi1'] .= '<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('typo3conf/ext/sni_supportchat/js/sni_supportchatIsOnline_Mootools.js').'"></script>';
 					$onLoad = '
-						window.addEvent("domready",initOnlineCheck)
+						window.addEvent("domready",function() { initOnlineCheck("'.$this->getEidUrl().'"); });
 					';
 				}
 			}	
@@ -220,7 +221,7 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 					\'chatNoAccess\': \''.addslashes($this->pi_getLL("chatNoAccess")).'\'
 				};
 				window.addEvent("domready", function() {
-					initChat();
+					initChat("'.$this->getEidUrl().'");
 				}); 
 				window.onbeforeunload = function() {
 					chat.destroyChat();
@@ -335,6 +336,22 @@ class tx_snisupportchat_pi1 extends tslib_pibase {
 	function loadUsingTypingIndicator() {		         
 		return ($this->conf["useTypingIndicator"] ? 1 : 0);	
 	}
+
+    /*
+     * Get the correct path to eID
+     * @return string path to eid
+     */
+    function getEidUrl() {
+        $isAbsRelPrefix = !empty($GLOBALS['TSFE']->absRefPrefix);
+        $isBaseURL  = !empty($GLOBALS['TSFE']->baseUrl);
+        if(!$isBaseURL && $isAbsRelPrefix) {
+            $url = $GLOBALS['TSFE']->absRefPrefix.'index.php?eID=tx_snisupportchat_pi1';
+        }
+        else {
+            $url = 'index.php?eID=tx_snisupportchat_pi1';
+        }        
+        return $url;
+    }
 }
 
 

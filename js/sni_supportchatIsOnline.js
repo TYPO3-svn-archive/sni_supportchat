@@ -1,17 +1,17 @@
 /**** check if the supportChat is online ****/
 
-function initOnlineCheck() {
+function initOnlineCheck(url) {
     if(checkPids) {
-		AjaxChatCheck.checkIfOnline(checkPids);
+		AjaxChatCheck.checkIfOnline(checkPids,url);
 	}	
 }
 
 var AjaxChatCheck = {
 	timer:'',
-	checkIfOnline:function(pids) {
+	checkIfOnline:function(pids,url) {
 		this.timer = new Ajax.PeriodicalUpdater(
 			"",
-			"index.php?eID=tx_snisupportchat_pi1&cmd=checkIfOnline&chatPids="+pids, {
+			url+"&cmd=checkIfOnline&chatPids="+pids, {
 				method:'get',
 				onSuccess:function(r) {
 					online = r.responseXML;

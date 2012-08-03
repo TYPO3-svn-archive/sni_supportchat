@@ -224,9 +224,11 @@ var AjaxChat = new Class({
             this.destroyChat();
 	        close_button_flag = true;
         }.bind(this));
-		$('exportButton').addEvent("click", function(){
-		    $('data1').value=$('snisupportchatbox').get('html');
-		});
+        if($('exportButton')) {
+            $('exportButton').addEvent("click", function(){
+                $('data1').value=$('snisupportchatbox').get('html');
+            });
+        }    
 	},	
 	/** tradem 2012-04-03: Resets the Typing state */
 	"resetTypingState": function() {					                

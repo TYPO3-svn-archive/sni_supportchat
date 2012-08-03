@@ -11,7 +11,6 @@ var chatMarket = new Class({
 		this.freq = freq; // the period for the request
 		/** tradem 2012-04-11 Used to control notification & display of typing indicator */
 		this.useTypingIndicator = useTypingIndicator;
-        console.log(this.useTypingIndicator);
 		this.chats = new Array(); // Array to gather the Chat Objects, key=the chat uid, value = the chat object
 		this.lastRowQuery = ""; // the last row GetVar Array: key => chatUid, value => lastRow
 		this.msgToSendQuery = ""; 

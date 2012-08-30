@@ -1,4 +1,8 @@
 (add new changes on top of this file)
+2012-30-08 Georg Schönweger  <Georg.Schoenweger@gmail.com>
+	* Improvements / Bugfixes of new typingstatus indication feature
+	* full support for baseURL and / or absRefPrefix
+	* Release of TER Version 1.1.0
 
 2012-07-16 André Lahmann (andre.lahmann@uni-leipzig.de) and Tobias Rademacher (tradem) (Leipzig University Library)
     * FE: added save-button for chatlog

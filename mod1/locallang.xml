@@ -6,7 +6,7 @@
 		<generator>LFEditor</generator>
 	</meta>
 	<data type="array">
-		<languageKey index="default" type="array">
+	    <languageKey index="default" type="array">
 			<label index="options">Options</label>
 			<label index="text_pieces">Text pieces</label>
 			<label index="options_lock">Lock the chat</label>
@@ -41,7 +41,7 @@
 			<label index="playAlert">.. Tonsignal bei jeder Nachricht</label>		
 			<label index="system">System</label>
 			<label index="chatDestroyedMsg">Der Chat wurde beendet. Auf Wiedersehen.</label>
-			<label index="welcomeMsg">Herzlich Willommen %s!</label>
+			<label index="welcomeMsg">Herzlich Willkommen %s!</label>
 			<label index="status_locked">Der Chat ist gesperrt. Nur Sie können ihn sehen.</label>	
 			<label index="noFixTextInThisLanguage">Keine Vorlagen für die Sprache des Nutzers!</label>
 			<label index="noBeUserOnline">Kein weiterer Mitarbeiter online!</label>

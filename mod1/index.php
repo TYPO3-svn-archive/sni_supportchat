@@ -212,8 +212,8 @@ class tx_snisupportchat_module1 extends t3lib_SCbase {
 		$res = $TYPO3_DB->exec_SELECTquery("uid,flag,title",$table,'1');		
 		$jsCode = '
 			<link rel="stylesheet" type="text/css" href="'.t3lib_div::createVersionNumberedFilename('chat.css').'" />
-			<script type="text/javascript" src="../js/mootools-1.2.4-core-yc.js"></script>
-            <script type="text/javascript" src="../js/mootools-1.2.4.2-more.js"></script>
+			<script type="text/javascript" src="../js/mootools-1.2.6-core-yc.js"></script>
+            <script type="text/javascript" src="../js/mootools-1.2.5.1-more.js"></script>
 			<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('../js/Element.Forms.js').'"></script>
 			<script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('../js/UvumiDropdown-compressed.js').'"></script>
             <script type="text/javascript" src="'.t3lib_div::createVersionNumberedFilename('../js/smilies.js').'"></script>
